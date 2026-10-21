@@ -1,0 +1,38 @@
+{
+  "LS-LR-NVAR spec": {
+    "annual_premium": 0.05,
+    "name_js": 0.3333333333333333,
+    "cap": 0.85,
+    "kappa": 1.0,
+    "oos_mape": 9.383858452317089,
+    "oos_mae": 26.496817939238387,
+    "oos_term_mae": 0.140028856437004,
+    "oos_dir": 0.7333333333333333,
+    "oos_spearman": 0.3931034482758621,
+    "file": "djia_6m_lslrnvar_mean.csv"
+  },
+  "LS-LR-NVAR v2": {
+    "annual_premium": 0.05,
+    "name_js": 0.3333333333333333,
+    "cap": 0.85,
+    "kappa": 1.0,
+    "oos_mape": 9.374757680340453,
+    "oos_mae": 26.529459908813173,
+    "oos_term_mae": 0.1400825696825679,
+    "oos_dir": 0.7333333333333333,
+    "oos_spearman": 0.38598442714126807,
+    "file": "djia_6m_lslrnvar_revised_v2_mean.csv"
+  },
+  "TVP-LR-NVAR-SV": {
+    "annual_premium": 0.05,
+    "name_js": 0.3333333333333333,
+    "cap": 0.85,
+    "kappa": 1.0,
+    "oos_mape": 9.373829461053017,
+    "oos_mae": 26.528123321635306,
+    "oos_term_mae": 0.14010573153684217,
+    "oos_dir": 0.7333333333333333,
+    "oos_spearman": 0.3846496106785317,
+    "file": "djia_6m_tvplrnvarsv_mean.csv"
+  }
+}

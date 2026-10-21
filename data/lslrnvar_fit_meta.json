@@ -1,0 +1,27 @@
+{
+  "sampler_version": "spec-steps-0-10",
+  "spec": "Steps 0-10 Gibbs, Step 11 6m predictive simulation, Step 11a rolling",
+  "avg_mape": 24.06910414058177,
+  "avg_mae": 57.065114470026835,
+  "n_draws": 9,
+  "n_sweep": 36,
+  "burn": 18,
+  "n_mc": 20,
+  "rho": 1.0,
+  "network_W": "row-normalized binary A (spec); probit intercept 0; no corr floor",
+  "step11a": {
+    "1": {
+      "ret_mae": 0.014587554562633713,
+      "n_origins": 106
+    },
+    "5": {
+      "ret_mae": 0.014821258562488315,
+      "n_origins": 106
+    },
+    "21": {
+      "ret_mae": 0.015232657169886239,
+      "n_origins": 106
+    }
+  },
+  "step11a_note": "frozen origin-T posterior; actual return lags; not daily warm-start MCMC"
+}

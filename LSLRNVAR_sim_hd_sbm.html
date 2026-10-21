@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>High-density SBM: Steps 0â€“25</title>
+<style>
+ body { margin:0; background:#f6f4ef; color:#1b1b1b; font:16px/1.55 "Times New Roman", Times, serif; }
+ .wrap { max-width:840px; margin:0 auto; padding:36px 24px 64px; }
+ table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+ th,td { border:1px solid #ccc; padding:6px 8px; } th { background:#1f4e79; color:#fff; }
+ figure { margin:16px 0; } img { width:100%; border:1px solid #ddd; background:#fff; }
+ figcaption { font-size:13px; font-style:italic; color:#444; }
+</style></head><body><div class="wrap">
+<h1>High-density within-cluster SBM: Steps 0â€“10, 11â€“11e, 12â€“25</h1>
+<p>n=30, T=800, holdout 80 steps, 3 blocks.
+Design p_in=0.999, p_out=0.130.
+Realized density 0.397. LS spec Gibbs 28 sweeps.</p>
+<h2>Recovery (Step 14 / 21)</h2>
+<table><thead><tr><th>Model</th><th>Within</th><th>Between</th><th>Overall</th><th>ARI vs true blocks</th></tr></thead><tbody>
+<tr><td>LS spec</td><td>0.348</td><td>0.427</td><td>0.402</td><td>-0.031</td></tr><tr><td>LS v2</td><td>0.815</td><td>0.217</td><td>0.402</td><td>0.469</td></tr><tr><td>TVP</td><td>0.741</td><td>0.250</td><td>0.402</td><td>0.898</td></tr><tr><td>Chen direct</td><td>0.404</td><td>0.402</td><td>0.402</td><td>0.151</td></tr><tr><td>BCVAR</td><td>0.415</td><td>0.397</td><td>0.402</td><td>-0.013</td></tr><tr><td>Truth</td><td>1.000</td><td>0.133</td><td>0.402</td><td>1.000</td></tr>
+</tbody></table>
+<figure><img src='reports/figures/sim_hd_heatmaps.png' alt='Train-end adjacency vs truth, nodes ordered by SBM block.'/><figcaption>Train-end adjacency vs truth, nodes ordered by SBM block.</figcaption></figure>
+<figure><img src='reports/figures/sim_hd_blocks.png' alt='Within- vs between-block density.'/><figcaption>Within- vs between-block density.</figcaption></figure>
+<h2>Step 11 / 11e</h2>
+<figure><img src='reports/figures/sim_hd_paths.png' alt='Equal-weight open-loop paths.'/><figcaption>Equal-weight open-loop paths.</figcaption></figure>
+<figure><img src='reports/figures/sim_hd_mae.png' alt='Holdout MAE.'/><figcaption>Holdout MAE.</figcaption></figure>
+<figure><img src='reports/figures/sim_hd_rolling.png' alt='Rolling-origin MAE.'/><figcaption>Rolling-origin MAE.</figcaption></figure>
+<h2>Steps 12â€“13</h2>
+<figure><img src='reports/figures/sim_hd_tci.png' alt='TCI.'/><figcaption>TCI.</figcaption></figure>
+<figure><img src='reports/figures/sim_hd_lps.png' alt='Holdout LPS.'/><figcaption>Holdout LPS.</figcaption></figure>
+<p>JSON: data/sim_hd_results.json</p>
+</div></body></html>

@@ -1,0 +1,17 @@
+{
+  "sampler_version": "tvp-lr-nvar-sv-v3",
+  "observation": "log-prices",
+  "trend": "local-linear common factor plus idiosyncratic local level",
+  "forecast": "last-origin network VAR on daily returns plus 21/63/126-day momentum",
+  "covariance": "triangular MSV (KSC mixture)",
+  "avg_mae": 29.84642675034103,
+  "avg_rmse": 35.51766327107019,
+  "avg_mape": 10.612160658312941,
+  "n_draws": 7,
+  "p": 2,
+  "n_sweep": 28,
+  "burn": 14,
+  "kappa_delta": 0.985,
+  "mh_static_accept": 0.7142857142857143,
+  "mh_dyn_accept": 1.0
+}

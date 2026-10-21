@@ -1,0 +1,214 @@
+{
+  "by_horizon": {
+    "1": {
+      "LS-LR-NVAR spec": {
+        "price_mape": 1.4236452433815974,
+        "price_mae": 3.9633688908483493,
+        "ret_mae": 0.014235034951991512,
+        "ret_rmsfe": 0.01963660517446969,
+        "n_origins": 106
+      },
+      "LS-LR-NVAR v2": {
+        "price_mape": 1.4193478753557598,
+        "price_mae": 3.9580801914214945,
+        "ret_mae": 0.014192059593125764,
+        "ret_rmsfe": 0.019598237516702616,
+        "n_origins": 106
+      },
+      "TVP-LR-NVAR-SV": {
+        "price_mape": 1.419323742889656,
+        "price_mae": 3.9578397745596043,
+        "ret_mae": 0.014191841389147709,
+        "ret_rmsfe": 0.019598332934402784,
+        "n_origins": 106
+      },
+      "Chen direct": {
+        "price_mape": 1.4265597769981488,
+        "price_mae": 3.9876381724502425,
+        "ret_mae": 0.014259599543967006,
+        "ret_rmsfe": 0.019632999001312698,
+        "n_origins": 106
+      },
+      "BCVAR": {
+        "price_mape": 1.5144935100117658,
+        "price_mae": 4.212471065044596,
+        "ret_mae": 0.01513817289083446,
+        "ret_rmsfe": 0.020658065871204365,
+        "n_origins": 106
+      },
+      "BCVAR-TVP": {
+        "price_mape": 1.498034702510476,
+        "price_mae": 4.152666598616712,
+        "ret_mae": 0.014976633887582769,
+        "ret_rmsfe": 0.02043950613858814,
+        "n_origins": 106
+      },
+      "Random walk": {
+        "price_mape": 1.419544697858768,
+        "price_mae": 3.960551782524061,
+        "ret_mae": 0.014196973702430683,
+        "ret_rmsfe": 0.01960240415100438,
+        "n_origins": 106
+      }
+    },
+    "5": {
+      "LS-LR-NVAR spec": {
+        "price_mape": 3.226684208461529,
+        "price_mae": 8.861526995777204,
+        "ret_mae": 0.03221736553464999,
+        "ret_rmsfe": 0.043528554989676976,
+        "n_origins": 106
+      },
+      "LS-LR-NVAR v2": {
+        "price_mape": 3.2238677936908924,
+        "price_mae": 8.848746028919575,
+        "ret_mae": 0.03218838134115884,
+        "ret_rmsfe": 0.04349515906696608,
+        "n_origins": 106
+      },
+      "TVP-LR-NVAR-SV": {
+        "price_mape": 3.2237849579152345,
+        "price_mae": 8.84829169103747,
+        "ret_mae": 0.03218748032029516,
+        "ret_rmsfe": 0.04349383747541886,
+        "n_origins": 106
+      },
+      "Chen direct": {
+        "price_mape": 3.230760036508653,
+        "price_mae": 8.854723127869438,
+        "ret_mae": 0.03220202258429394,
+        "ret_rmsfe": 0.04353464165593679,
+        "n_origins": 106
+      },
+      "BCVAR": {
+        "price_mape": 3.2544465560743916,
+        "price_mae": 8.900912502863614,
+        "ret_mae": 0.03242475992302649,
+        "ret_rmsfe": 0.04395849184457993,
+        "n_origins": 106
+      },
+      "BCVAR-TVP": {
+        "price_mape": 3.29110065365464,
+        "price_mae": 8.97379563172832,
+        "ret_mae": 0.032831730259117585,
+        "ret_rmsfe": 0.04435517936354067,
+        "n_origins": 106
+      },
+      "Random walk": {
+        "price_mape": 3.223196508395055,
+        "price_mae": 8.860795425319072,
+        "ret_mae": 0.03221415835333076,
+        "ret_rmsfe": 0.04352802918975154,
+        "n_origins": 106
+      }
+    },
+    "21": {
+      "LS-LR-NVAR spec": {
+        "price_mape": 6.626576460952176,
+        "price_mae": 18.97983881205762,
+        "ret_mae": 0.06654665453655824,
+        "ret_rmsfe": 0.08692297961024671,
+        "n_origins": 106
+      },
+      "LS-LR-NVAR v2": {
+        "price_mape": 6.626092605262336,
+        "price_mae": 18.98141063517869,
+        "ret_mae": 0.06654025450291326,
+        "ret_rmsfe": 0.08692908453643647,
+        "n_origins": 106
+      },
+      "TVP-LR-NVAR-SV": {
+        "price_mape": 6.626480676177908,
+        "price_mae": 18.982060580183802,
+        "ret_mae": 0.06654393446054942,
+        "ret_rmsfe": 0.08693203671995023,
+        "n_origins": 106
+      },
+      "Chen direct": {
+        "price_mape": 6.692456483472084,
+        "price_mae": 18.952503382734456,
+        "ret_mae": 0.0666942775528229,
+        "ret_rmsfe": 0.0866413253658497,
+        "n_origins": 106
+      },
+      "BCVAR": {
+        "price_mape": 6.734212074338217,
+        "price_mae": 19.106813934604677,
+        "ret_mae": 0.06709829798393736,
+        "ret_rmsfe": 0.08722994125573486,
+        "n_origins": 106
+      },
+      "BCVAR-TVP": {
+        "price_mape": 6.790769721749215,
+        "price_mae": 19.261034186404444,
+        "ret_mae": 0.06783020646045844,
+        "ret_rmsfe": 0.08821881202282397,
+        "n_origins": 106
+      },
+      "Random walk": {
+        "price_mape": 6.61067977265186,
+        "price_mae": 19.063701496484143,
+        "ret_mae": 0.06667132117095768,
+        "ret_rmsfe": 0.08741408175214341,
+        "n_origins": 106
+      }
+    }
+  },
+  "horizons": [
+    1,
+    5,
+    21
+  ],
+  "n_origins": 106,
+  "protocol": "Step 11a expanding-window intercept, frozen train-end Phi, observed lags",
+  "one_step_all": {
+    "LS-LR-NVAR spec": {
+      "price_mape": 1.4613583004243487,
+      "price_mae": 4.137279564734994,
+      "ret_mae": 0.014611766054844605,
+      "n_origins": 126
+    },
+    "LS-LR-NVAR v2": {
+      "price_mape": 1.4577885047331935,
+      "price_mae": 4.13475157996488,
+      "ret_mae": 0.014576177101277876,
+      "n_origins": 126
+    },
+    "TVP-LR-NVAR-SV": {
+      "price_mape": 1.4577849576770272,
+      "price_mae": 4.134633665555937,
+      "ret_mae": 0.014576173609220238,
+      "n_origins": 126
+    },
+    "Chen direct": {
+      "price_mape": 1.4637480685865327,
+      "price_mae": 4.159389004319675,
+      "ret_mae": 0.014631027100105977,
+      "n_origins": 126
+    },
+    "BCVAR": {
+      "price_mape": 1.5646785359730089,
+      "price_mae": 4.406511511039397,
+      "ret_mae": 0.015640877376573575,
+      "n_origins": 126
+    },
+    "BCVAR-TVP": {
+      "price_mape": 1.5385750377393255,
+      "price_mae": 4.330704750103421,
+      "ret_mae": 0.01538492438707174,
+      "n_origins": 126
+    },
+    "Random walk": {
+      "price_mape": 1.4581773750505251,
+      "price_mae": 4.1371389651424675,
+      "ret_mae": 0.01458310087129672,
+      "n_origins": 126
+    }
+  },
+  "window": {
+    "train_end": "2026-02-05",
+    "test_start": "2026-02-06",
+    "test_end": "2026-08-07",
+    "protocol": "Step 11a: frozen Phi, expanding Minnesota intercept, actual lags"
+  }
+}

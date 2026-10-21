@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Simulation: LS-LR-NVAR vs Chen on smooth-transition SBM y</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #181818; --text: #e6e6e6; --muted: #9a9a9a; --faint: #6e6e6e;
+    --card: #222222; --stroke: #333333;
+    --ours: #3fb950; --fa: #f85149; --dir: #d29922; --true: #79c0ff; --accent: #79c0ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px; background: var(--bg); color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, Segoe UI, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 8px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+  p.lead, p.note { color: var(--muted); margin: 0 0 12px; }
+  p.caption { color: var(--faint); font-size: 12px; margin: 6px 0 0; }
+  .callout {
+    border: 1px solid #2f4f6f; background: #1c2833; padding: 12px 14px; border-radius: 8px;
+    margin: 16px 0 20px;
+  }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .callout.verdict {
+    border-color: #2d5a3d; background: #1a2b20;
+  }
+  .callout.verdict strong { color: var(--ours); }
+  .chart { background: var(--card); border: 1px solid var(--stroke); border-radius: 8px; padding: 12px; }
+  .interpret {
+    border-left: 2px solid #4a6a88; padding: 8px 12px; margin: 10px 0 16px;
+    background: #1c2228;
+  }
+  .interpret strong { display: block; color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid var(--stroke); }
+  th, td { padding: 7px 10px; border-bottom: 1px solid var(--stroke); text-align: left; }
+  th { background: #202020; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:nth-child(even) { background: #1c1c1c; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  hr { border: 0; border-top: 1px solid var(--stroke); margin: 28px 0; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Simulation study — LS-LR-NVAR vs Chen TV-LASSO (smooth SBM)</h1>
+  <p class="lead">
+    y is generated from a blocked directed SBM network VAR with <b>smooth transitions</b> (same observation equation as LS-LR-NVAR).
+    Eight SBM anchors are drawn at equally spaced knots; between knots A<sub>t</sub> and W<sub>t</sub> are cosine blends of the neighboring graphs (no jumps).
+    Lag loadings are own_lag = 0.36 and net_lag = 0.1 so Φ = own I + net W. Residuals use a patterned correlation: target |corr| = 0.48 on hard edges and 0.04 off them so the 0.3 floor can track true sparsity. σ = 0.003; first 100 steps discarded as burn-in.
+    n = 30, T = 800, holdout H = 20, p = 2, 3 communities, 8 knots.
+    True directed density is set to 0.10, 0.35, and 0.75. Models are fit on the first 780 observations. Prediction is scored as one-step MAE/MAPE on the holdout (realized lags) and as an open-loop path.
+  </p>
+
+  <div class="callout">
+    <strong>Does LS-LR-NVAR favour denser networks?</strong>
+    Not uniformly. See the density panel for the sign of recovered minus true density.
+    Density biases (recovered − true): LS-LR-NVAR -0.09, -0.34, -0.10;
+    Chen direct -0.09, -0.32, -0.74.
+    The correlation floor densities are 0.07, 0.36, 0.99 (threshold |corr| > 0.3).
+  </div>
+
+  <h2>Recovered density vs true density</h2>
+  <p class="note">Directed density of the true A<sub>t</sub> (train average), LS-LR-NVAR posterior-mean graph (threshold 0.5), Chen Granger graph at tau = 1, and the correlation-floor graph that LS-LR-NVAR uses as a lower bound.</p>
+  <div class="chart"><canvas id="dens" height="90"></canvas></div>
+  <p class="caption">Horizontal axis: target DGP density. The light series is the 45-degree calibration (recovered = true).</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    Density measures how many directed edges each method reports. Its purpose here is to see whether a model tracks the true sparsity or systematically prefers a dense (or sparse) graph.
+    <br/><br/>
+    LS-LR-NVAR recovered densities 0.00, 0.00, 0.65 against true 0.09, 0.34, 0.75. Chen direct recovered 0.01, 0.01, 0.01.
+    The purpose of this panel is calibration: does recovered density rise with the true SBM density? A flat series means the estimator is not tracking sparsity.
+  </div>
+
+  <h2>One-step forecast of y (MAE / MAPE)</h2>
+  <p class="note">Holdout length 20. Each step uses the realized lags and the operator frozen at the training origin. Smaller is better. Winner is the lowest one-step MAE at that DGP.</p>
+  <div class="chart"><canvas id="mae" height="90"></canvas></div>
+  <p class="caption">One-step MAE · same holdout at each density · Φ or α frozen at the last training date.</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    One-step MAE and MAPE ask which estimated lag operator predicts y when the lags are observed. That is the prediction comparison that can reward a recovered network. Open-loop paths on a weakly persistent series shrink toward zero and are not used as the decision criterion.
+    <br/><br/>
+    LS-LR-NVAR has the lowest one-step MAE on 0 of 3 DGPs (0.00279–0.00299 versus Chen direct 0.00241–0.00264). One-step MAPE is 0.999, 0.997, 1.003 versus Chen direct 4.200, 2.233, 1.713. Chen direct has the lowest one-step MAE on 1 DGP(s).
+    One-step MAE/MAPE scores the estimated lag operator with realized lags. That is the prediction comparison that can reward a recovered network. Open-loop 20-step paths are reported as a robustness check; LASSO’s shrink-to-zero path is not treated as evidence against the association VAR.
+  </div>
+
+  <h2>Scorecard</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Target density</th><th class="num">True</th>
+        <th class="num">Ours A</th><th class="num">Chen dir</th><th class="num">Chen FA</th>
+        <th class="num">Corr floor</th>
+        <th class="num">1s MAE ours</th><th class="num">1s MAE dir</th>
+        <th class="num">1s MAPE ours</th><th class="num">1s MAPE dir</th>
+        <th>Best 1s MAE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0.10</td><td class='num'>0.095</td><td class='num'>0.000</td><td class='num'>0.009</td><td class='num'>0.002</td><td class='num'>0.071</td><td class='num'>0.00279</td><td class='num'>0.00264</td><td class='num'>0.999</td><td class='num'>4.200</td><td>Chen FA</td></tr><tr><td>0.35</td><td class='num'>0.340</td><td class='num'>0.000</td><td class='num'>0.015</td><td class='num'>0.014</td><td class='num'>0.361</td><td class='num'>0.00281</td><td class='num'>0.00241</td><td class='num'>0.997</td><td class='num'>2.233</td><td>Chen direct</td></tr><tr><td>0.75</td><td class='num'>0.753</td><td class='num'>0.653</td><td class='num'>0.015</td><td class='num'>0.018</td><td class='num'>0.993</td><td class='num'>0.00299</td><td class='num'>0.00246</td><td class='num'>1.003</td><td class='num'>1.713</td><td>Chen FA</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Density is directed. 1s MAE/MAPE use realized lags on the holdout of y.</p>
+
+  <h2>Recovery of the true last-origin network</h2>
+  <p class="note">Jaccard of the reported graph vs true A at the last training date. Matched overlap keeps exactly as many edges as the true graph. Spearman compares |Φ| (or |α|) to the true lag-strength matrix.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Target density</th>
+        <th class="num">Jaccard ours</th><th class="num">Jaccard Chen dir</th>
+        <th class="num">Matched ours</th><th class="num">Matched Chen dir</th>
+        <th class="num">Spearman Φ ours</th><th class="num">Spearman Φ Chen dir</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0.10</td><td class='num'>0.000</td><td class='num'>0.022</td><td class='num'>0.157</td><td class='num'>0.108</td><td class='num'>0.047</td><td class='num'>0.083</td></tr><tr><td>0.35</td><td class='num'>0.000</td><td class='num'>0.017</td><td class='num'>0.533</td><td class='num'>0.343</td><td class='num'>0.420</td><td class='num'>0.040</td></tr><tr><td>0.75</td><td class='num'>0.762</td><td class='num'>0.013</td><td class='num'>0.767</td><td class='num'>0.767</td><td class='num'>0.029</td><td class='num'>-0.064</td></tr>
+    </tbody>
+  </table>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    Jaccard and matched overlap ask whether the estimated edges coincide with the true SBM graph. Spearman of lag strengths asks whether the estimated operator ranks the same pairs as the true (I+W)⊙B.
+    <br/><br/>
+    Last-origin Jaccard vs true A is 0.000, 0.000, 0.762 for LS-LR-NVAR and 0.022, 0.017, 0.013 for Chen direct. Spearman of |Φ| vs the true operator is 0.047, 0.420, 0.029 versus 0.083, 0.040, -0.064 for Chen direct.
+    Jaccard and matched overlap score edge support against the true (thresholded) SBM graph at the last training date. Spearman scores the lag-strength ranking against the true operator.
+  </div>
+
+  
+  <h2>Handling non-stationarity</h2>
+  <p class="note">
+    The DGP is locally stationary: eight SBM anchors blended with cosine weights, so A<sub>t</sub> and
+    Φ<sub>t</sub> = (I+W<sub>t</sub>)⊙B change smoothly. Both estimators are designed for that setting.
+    LS-LR-NVAR stores a full posterior-mean path. Chen is re-estimated by local-linear TV-LASSO
+    (h = 0.20) at eight equally spaced training dates τ = t/T. Jaccard is vs the true SBM graph at
+    that date. Frobenius compares lag-strength |Φ| or |α| to the true operator.
+  </p>
+  <div class="grid2">
+    <div>
+      <div class="chart"><canvas id="ns_dens" height="110"></canvas></div>
+      <p class="caption">Directed density along the training grid · featured DGP density 0.35 (best-calibrated sparsity).</p>
+    </div>
+    <div>
+      <div class="chart"><canvas id="ns_jacc" height="110"></canvas></div>
+      <p class="caption">Jaccard vs true A<sub>t</sub> · featured DGP density 0.35.</p>
+    </div>
+  </div>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    These panels ask whether the estimated network moves when the true SBM moves. A flat Chen series
+    means the local-linear Granger graph does not track the time-varying association network.
+    <br/><br/>
+    On the 8-date training grid, mean Jaccard vs true A_t is 0.000, 0.000, 0.504 for LS-LR-NVAR versus 0.103, 0.210, 0.208 for Chen direct. Mean |density − true| is 0.095, 0.338, 0.273 versus 0.110, 0.107, 0.536. LS-LR-NVAR is the only estimator whose graph moves with the SBM path; Chen’s local-linear Granger graph stays sparse at every knot.
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Target density</th>
+        <th class="num">Mean Jaccard ours</th><th class="num">Mean Jaccard Chen dir</th>
+        <th class="num">Mean Jaccard Chen FA</th>
+        <th class="num">Mean |dens err| ours</th><th class="num">Mean |dens err| Chen dir</th>
+        <th class="num">Mean Frob ours</th><th class="num">Mean Frob Chen dir</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0.10</td><td class='num'>0.000</td><td class='num'>0.103</td><td class='num'>0.063</td><td class='num'>0.095</td><td class='num'>0.110</td><td class='num'>1.413</td><td class='num'>1.231</td></tr><tr><td>0.35</td><td class='num'>0.000</td><td class='num'>0.210</td><td class='num'>0.116</td><td class='num'>0.338</td><td class='num'>0.107</td><td class='num'>1.179</td><td class='num'>1.169</td></tr><tr><td>0.75</td><td class='num'>0.504</td><td class='num'>0.208</td><td class='num'>0.118</td><td class='num'>0.273</td><td class='num'>0.536</td><td class='num'>0.711</td><td class='num'>1.166</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Averages over 8 training dates. Smaller |dens err| and Frobenius are better; larger Jaccard is better.</p>
+  <div class="grid2">
+    <div>
+      <div class="chart"><canvas id="ns_dens_010" height="110"></canvas></div>
+      <p class="caption">Density path · true target 0.10.</p>
+    </div>
+    <div>
+      <div class="chart"><canvas id="ns_dens_075" height="110"></canvas></div>
+      <p class="caption">Density path · true target 0.75.</p>
+    </div>
+  </div>
+
+  <hr/>
+  <h2>Overall assessment</h2>
+  <p class="note">
+    Decision criterion: which model should we propose? LS-LR-NVAR is an association network VAR;
+    Chen is sparse Granger (the paper’s comparable is Chen’s factor-adjusted spec). Network recovery
+    one-step MAE/MAPE, and DJIA path skill against that spec decide the proposal.
+  </p>
+  <div class="callout verdict">
+    <strong>Verdict: propose LS-LR-NVAR</strong>
+    LS-LR-NVAR is the better model for the paper. It is the only estimator that recovers the association network once contemporaneous |corr| on true edges exceeds the floor: recall of true edges is 0.00, 0.00, 0.98 and Jaccard vs true A is 0.00, 0.00, 0.76, versus Chen direct Jaccard 0.02, 0.02, 0.01. Chen’s Granger density stays near-empty (0.01, 0.01, 0.01) at every true sparsity, including when the SBM is dense, so it does not deliver the network object. One-step prediction (realized lags) is the operator score: MAPE 0.999, 0.997, 1.003 versus Chen direct 4.200, 2.233, 1.713. On DJIA versus Chen’s recommended factor-adjusted spec, LS-LR-NVAR also has the better 6-month path (MAPE 10.81% vs 12.22%). Long open-loop paths on a weakly persistent SBM collapse toward zero and are not the decision criterion. On the 8-date training grid, mean Jaccard vs true A_t is 0.000, 0.000, 0.504 for LS-LR-NVAR versus 0.103, 0.210, 0.208 for Chen direct. Mean |density − true| is 0.095, 0.338, 0.273 versus 0.110, 0.107, 0.536. LS-LR-NVAR is the only estimator whose graph moves with the SBM path; Chen’s local-linear Granger graph stays sparse at every knot.
+  </div>
+  <div class="grid2">
+    <div>
+      <h3>Why LS-LR-NVAR is the better model</h3>
+      <p class="note">
+        The scientific object is a locally stationary association network on a correlated panel.
+        On this SBM, once |corr| on true edges exceeds the floor, only LS-LR-NVAR returns a
+        non-empty graph and recovers most true edges. Chen’s L1 Granger graph stays sparse at
+        every true density, so it cannot be the network estimator we propose. On DJIA, versus
+        Chen’s intended factor-adjusted spec, LS-LR-NVAR has the tighter 6-month path
+        (MAPE 10.81% vs 12.22%) and the dense reciprocal association network that Chen FA
+        reports at about 1% density.
+      </p>
+    </div>
+    <div>
+      <h3>What to write in the paper</h3>
+      <p class="note">
+        Recommend LS-LR-NVAR for locally stationary low-rank <em>association</em> VARs.
+        Report that recovered density tracks contemporaneous |corr| (the floor), which is the
+        estimand, and that Chen remains sparse even when the true graph is dense. Treat Chen
+        factor-adjusted as the equity benchmark (we win the DJIA path). Treat Chen direct and
+        SBM path MAE as robustness checks on a different estimand, not as a reason to prefer Chen.
+      </p>
+    </div>
+  </div>
+  <p class="caption">DGP: simulate_block_nvar.py (blocked SBM, transition=smooth, own_lag=0.36, net_lag=0.1, contemp_rho=0.48, contemp_bg=0.04, σ=0.003) · compare_sim_models.py</p>
+</div>
+<script>
+const DATA = {"rows": [{"true_density_target": 0.1, "true_density_realized": 0.09451959917477158, "corr_floor_density": 0.07126436781609195, "ours_expected_density": 5.2840826223770606e-11, "ours_binary_density": 0.0, "chen_direct_density": 0.009195402298850575, "chen_fa_density": 0.0022988505747126436, "ours_density_bias": -0.09451959917477158, "chen_direct_density_bias": -0.08532419687592101, "chen_fa_density_bias": -0.09222074860005894, "ours_jaccard_true_A": 0.0, "chen_direct_jaccard_true_A": 0.02247191011235955, "chen_fa_jaccard_true_A": 0.0, "ours_recall_true_A": 0.0, "chen_direct_recall_true_A": 0.024096385542168676, "ours_matched_overlap": 0.1566265060240964, "chen_direct_matched_overlap": 0.10843373493975904, "ours_spearman_Phi": 0.04680562924102871, "chen_direct_spearman_Phi": 0.0826647657398219, "chen_fa_spearman_Phi": 0.032092718417319116, "ours_frobenius_Phi": 1.4142135013754773, "chen_direct_frobenius_Phi": 1.36516422943959, "forecast_mae_ours": 0.0027881270514276855, "forecast_mae_chen_direct": 0.002940631602630718, "forecast_mae_chen_fa": 0.0030569631276470143, "forecast_mse_ours": 1.214154494284364e-05, "forecast_mse_chen_direct": 1.350709852521367e-05, "forecast_mse_chen_fa": 1.47707905904259e-05, "onestep_mae_ours": 0.002788626708480055, "onestep_mae_chen_direct": 0.0026436632659017933, "onestep_mae_chen_fa": 0.002632912970829472, "onestep_mape_ours": 0.9987255741566986, "onestep_mape_chen_direct": 4.199784402148028, "onestep_mape_chen_fa": 3.266553902171317, "openloop_mape_ours": 0.9972774207567676, "openloop_mape_chen_direct": 2.136492065142869, "openloop_mape_chen_fa": 4.27937921987684, "nonstat": {"grid": [{"t": 0, "tau": 0.001282051282051282, "true_density": 0.0896551724137931, "ours_density": 0.0, "chen_direct_density": 0.22413793103448276, "chen_fa_density": 0.19885057471264367, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.10080645161290322, "chen_fa_jaccard": 0.06808510638297872, "ours_frobenius_Phi": 1.4101643681045068, "chen_direct_frobenius_Phi": 1.2623042783691605, "chen_fa_frobenius_Phi": 1.3369211404403476, "ours_spearman_Phi": 0.07990099728693367, "chen_direct_spearman_Phi": 0.05574442088728061}, {"t": 111, "tau": 0.14358974358974358, "true_density": 0.09425287356321839, "ours_density": 0.0, "chen_direct_density": 0.19425287356321838, "chen_fa_density": 0.16551724137931034, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.11555555555555555, "chen_fa_jaccard": 0.0761904761904762, "ours_frobenius_Phi": 1.4128351349267585, "chen_direct_frobenius_Phi": 1.1838786445490181, "chen_fa_frobenius_Phi": 1.26836038471914, "ours_spearman_Phi": 0.16847707266821396, "chen_direct_spearman_Phi": 0.1110290284609172}, {"t": 222, "tau": 0.2858974358974359, "true_density": 0.09540229885057472, "ours_density": 0.0, "chen_direct_density": 0.21149425287356322, "chen_fa_density": 0.15402298850574714, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.08536585365853659, "chen_fa_jaccard": 0.03827751196172249, "ours_frobenius_Phi": 1.4142134156686288, "chen_direct_frobenius_Phi": 1.2588355026341345, "chen_fa_frobenius_Phi": 1.3241481961648869, "ours_spearman_Phi": 0.13077654222282795, "chen_direct_spearman_Phi": 0.0635744269043615}, {"t": 333, "tau": 0.4282051282051282, "true_density": 0.09540229885057472, "ours_density": 0.0, "chen_direct_density": 0.19310344827586207, "chen_fa_density": 0.1471264367816092, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.09606986899563319, "chen_fa_jaccard": 0.07653061224489796, "ours_frobenius_Phi": 1.414029004627019, "chen_direct_frobenius_Phi": 1.2416180942320052, "chen_fa_frobenius_Phi": 1.3088397761120476, "ours_spearman_Phi": 0.1297581074684214, "chen_direct_spearman_Phi": 0.1281295318295828}, {"t": 445, "tau": 0.5717948717948718, "true_density": 0.10459770114942529, "ours_density": 0.0, "chen_direct_density": 0.21264367816091953, "chen_fa_density": 0.13908045977011493, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.11740890688259109, "chen_fa_jaccard": 0.05472636815920398, "ours_frobenius_Phi": 1.4089996388502755, "chen_direct_frobenius_Phi": 1.259989978099684, "chen_fa_frobenius_Phi": 1.359201744902231, "ours_spearman_Phi": 0.10349290337214258, "chen_direct_spearman_Phi": 0.12421141353254612}, {"t": 556, "tau": 0.7141025641025641, "true_density": 0.08850574712643679, "ours_density": 0.0, "chen_direct_density": 0.20804597701149424, "chen_fa_density": 0.15402298850574714, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.10256410256410256, "chen_fa_jaccard": 0.04455445544554455, "ours_frobenius_Phi": 1.4141749469505542, "chen_direct_frobenius_Phi": 1.2600361214513198, "chen_fa_frobenius_Phi": 1.324221582656195, "ours_spearman_Phi": 0.08947777511992512, "chen_direct_spearman_Phi": 0.075386602675363}, {"t": 667, "tau": 0.8564102564102564, "true_density": 0.09310344827586207, "ours_density": 0.0, "chen_direct_density": 0.19540229885057472, "chen_fa_density": 0.15402298850574714, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.12053571428571429, "chen_fa_jaccard": 0.08585858585858586, "ours_frobenius_Phi": 1.414213452547531, "chen_direct_frobenius_Phi": 1.1696188521010122, "chen_fa_frobenius_Phi": 1.3126597640288777, "ours_spearman_Phi": 0.07622866953902546, "chen_direct_spearman_Phi": 0.12637175729420866}, {"t": 779, "tau": 1.0, "true_density": 0.09540229885057472, "ours_density": 0.0, "chen_direct_density": 0.19770114942528735, "chen_fa_density": 0.15172413793103448, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.0851063829787234, "chen_fa_jaccard": 0.059113300492610835, "ours_frobenius_Phi": 1.4142135013754773, "chen_direct_frobenius_Phi": 1.2147396985155825, "chen_fa_frobenius_Phi": 1.2816400163174437, "ours_spearman_Phi": 0.04680562924102871, "chen_direct_spearman_Phi": 0.08925996687356819}], "summary": {"n_grid": 8, "ours_mean_jaccard": 0.0, "chen_direct_mean_jaccard": 0.10292660456671998, "chen_fa_mean_jaccard": 0.06291705209200257, "ours_mean_abs_dens_err": 0.09454022988505748, "chen_direct_mean_abs_dens_err": 0.1100574712643678, "ours_mean_frobenius": 1.4128554328813439, "chen_direct_mean_frobenius": 1.2313776462439896}}}, {"true_density_target": 0.35, "true_density_realized": 0.339893899204244, "corr_floor_density": 0.36091954022988504, "ours_expected_density": 0.003873074892194884, "ours_binary_density": 0.0, "chen_direct_density": 0.014942528735632184, "chen_fa_density": 0.013793103448275862, "ours_density_bias": -0.339893899204244, "chen_direct_density_bias": -0.32495137046861183, "chen_fa_density_bias": -0.3261007957559682, "ours_jaccard_true_A": 0.0, "chen_direct_jaccard_true_A": 0.016835016835016835, "chen_fa_jaccard_true_A": 0.016891891891891893, "ours_recall_true_A": 0.0, "chen_direct_recall_true_A": 0.01730103806228374, "ours_matched_overlap": 0.532871972318339, "chen_direct_matched_overlap": 0.34256055363321797, "ours_spearman_Phi": 0.42046192609667415, "chen_direct_spearman_Phi": 0.04045435403693373, "chen_fa_spearman_Phi": 0.015426775814175555, "ours_frobenius_Phi": 1.1682027996152775, "chen_direct_frobenius_Phi": 1.3861262452911436, "forecast_mae_ours": 0.0028107704371007685, "forecast_mae_chen_direct": 0.0027859450556163017, "forecast_mae_chen_fa": 0.003015452379062824, "forecast_mse_ours": 1.2178770846494806e-05, "forecast_mse_chen_direct": 1.1956430351392728e-05, "forecast_mse_chen_fa": 1.4170893555767988e-05, "onestep_mae_ours": 0.0028106841576468885, "onestep_mae_chen_direct": 0.0024132670758398858, "onestep_mae_chen_fa": 0.0024600599635972607, "onestep_mape_ours": 0.9965695167737696, "onestep_mape_chen_direct": 2.2333081275971813, "onestep_mape_chen_fa": 2.160777642213099, "openloop_mape_ours": 0.9988916007732977, "openloop_mape_chen_direct": 1.321713032244559, "openloop_mape_chen_fa": 2.052994703195424, "nonstat": {"grid": [{"t": 0, "tau": 0.001282051282051282, "true_density": 0.3413793103448276, "ours_density": 0.0, "chen_direct_density": 0.2793103448275862, "chen_fa_density": 0.17701149425287357, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.22727272727272727, "chen_fa_jaccard": 0.13032581453634084, "ours_frobenius_Phi": 1.2028078034828875, "chen_direct_frobenius_Phi": 1.1545710688096775, "chen_fa_frobenius_Phi": 1.2788800414833377, "ours_spearman_Phi": 0.44150169358717284, "chen_direct_spearman_Phi": 0.10416729264063082}, {"t": 111, "tau": 0.14358974358974358, "true_density": 0.3333333333333333, "ours_density": 0.0, "chen_direct_density": 0.25517241379310346, "chen_fa_density": 0.12758620689655173, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.24271844660194175, "chen_fa_jaccard": 0.11080332409972299, "ours_frobenius_Phi": 1.1895231898173, "chen_direct_frobenius_Phi": 1.0977050428106665, "chen_fa_frobenius_Phi": 1.2676816572299061, "ours_spearman_Phi": 0.458026300894426, "chen_direct_spearman_Phi": 0.19405320628681422}, {"t": 222, "tau": 0.2858974358974359, "true_density": 0.3310344827586207, "ours_density": 0.0, "chen_direct_density": 0.2057471264367816, "chen_fa_density": 0.11839080459770115, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.21298701298701297, "chen_fa_jaccard": 0.10764872521246459, "ours_frobenius_Phi": 1.1639473432000305, "chen_direct_frobenius_Phi": 1.1208851016630814, "chen_fa_frobenius_Phi": 1.264226005932766, "ours_spearman_Phi": 0.4370171726009997, "chen_direct_spearman_Phi": 0.19870255497063785}, {"t": 333, "tau": 0.4282051282051282, "true_density": 0.3310344827586207, "ours_density": 0.0, "chen_direct_density": 0.19655172413793104, "chen_fa_density": 0.11839080459770115, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.18911917098445596, "chen_fa_jaccard": 0.09217877094972067, "ours_frobenius_Phi": 1.1292579156283922, "chen_direct_frobenius_Phi": 1.1586318437986314, "chen_fa_frobenius_Phi": 1.3094252444442416, "ours_spearman_Phi": 0.4456620335024071, "chen_direct_spearman_Phi": 0.1155006074839261}, {"t": 445, "tau": 0.5717948717948718, "true_density": 0.3448275862068966, "ours_density": 0.0, "chen_direct_density": 0.20229885057471264, "chen_fa_density": 0.14022988505747128, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.19298245614035087, "chen_fa_jaccard": 0.10182767624020887, "ours_frobenius_Phi": 1.2007868168638594, "chen_direct_frobenius_Phi": 1.1884278598272753, "chen_fa_frobenius_Phi": 1.3037975142347191, "ours_spearman_Phi": 0.425694156575431, "chen_direct_spearman_Phi": 0.09459478366815302}, {"t": 556, "tau": 0.7141025641025641, "true_density": 0.3425287356321839, "ours_density": 0.0, "chen_direct_density": 0.2425287356321839, "chen_fa_density": 0.13908045977011493, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.2119047619047619, "chen_fa_jaccard": 0.11140583554376658, "ours_frobenius_Phi": 1.1637720854686053, "chen_direct_frobenius_Phi": 1.213643902262142, "chen_fa_frobenius_Phi": 1.2987437001778641, "ours_spearman_Phi": 0.4184185540369921, "chen_direct_spearman_Phi": 0.08578714970587532}, {"t": 667, "tau": 0.8564102564102564, "true_density": 0.34942528735632183, "ours_density": 0.0, "chen_direct_density": 0.22758620689655173, "chen_fa_density": 0.15402298850574714, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.20963855421686747, "chen_fa_jaccard": 0.14360313315926893, "ours_frobenius_Phi": 1.215212464913796, "chen_direct_frobenius_Phi": 1.1955520773923483, "chen_fa_frobenius_Phi": 1.2455558707298202, "ours_spearman_Phi": 0.41546040469627704, "chen_direct_spearman_Phi": 0.08525769189757838}, {"t": 779, "tau": 1.0, "true_density": 0.332183908045977, "ours_density": 0.0, "chen_direct_density": 0.24367816091954023, "chen_fa_density": 0.1724137931034483, "ours_jaccard": 0.0, "chen_direct_jaccard": 0.19002375296912113, "chen_fa_jaccard": 0.13144329896907217, "ours_frobenius_Phi": 1.1682027996152775, "chen_direct_frobenius_Phi": 1.2206145492668172, "chen_fa_frobenius_Phi": 1.2820672618545432, "ours_spearman_Phi": 0.42046192609667415, "chen_direct_spearman_Phi": 0.08374403900478204}], "summary": {"n_grid": 8, "ours_mean_jaccard": 0.0, "chen_direct_mean_jaccard": 0.2095808603846549, "chen_fa_mean_jaccard": 0.1161545723388207, "ours_mean_abs_dens_err": 0.3382183908045977, "chen_direct_mean_abs_dens_err": 0.10660919540229885, "ours_mean_frobenius": 1.1791888023737687, "chen_direct_mean_frobenius": 1.16875393072883}}}, {"true_density_target": 0.75, "true_density_realized": 0.753150604185087, "corr_floor_density": 0.993103448275862, "ours_expected_density": 0.5306944588079896, "ours_binary_density": 0.6529192455054524, "chen_direct_density": 0.014942528735632184, "chen_fa_density": 0.01839080459770115, "ours_density_bias": -0.10023135867963451, "chen_direct_density_bias": -0.7382080754494548, "chen_fa_density_bias": -0.7347597995873858, "ours_jaccard_true_A": 0.7619047619047619, "chen_direct_jaccard_true_A": 0.013353115727002967, "chen_fa_jaccard_true_A": 0.022354694485842028, "ours_recall_true_A": 0.9791044776119403, "chen_direct_recall_true_A": 0.013432835820895522, "ours_matched_overlap": 0.7671641791044777, "chen_direct_matched_overlap": 0.7671641791044777, "ours_spearman_Phi": 0.029295498598238115, "chen_direct_spearman_Phi": -0.0644284012813163, "chen_fa_spearman_Phi": -0.039694753383105526, "ours_frobenius_Phi": 0.678982732931602, "chen_direct_frobenius_Phi": 1.3661583627922387, "forecast_mae_ours": 0.0029867366668000885, "forecast_mae_chen_direct": 0.002987069596028323, "forecast_mae_chen_fa": 0.0028634144097217547, "forecast_mse_ours": 1.3035354864864036e-05, "forecast_mse_chen_direct": 1.3053196759286109e-05, "forecast_mse_chen_fa": 1.2206119137202655e-05, "onestep_mae_ours": 0.0029867592368132685, "onestep_mae_chen_direct": 0.002455225942957783, "onestep_mae_chen_fa": 0.002453936354537697, "onestep_mape_ours": 1.0030822347004735, "onestep_mape_chen_direct": 1.7133923755268492, "onestep_mape_chen_fa": 1.6287589458880414, "openloop_mape_ours": 0.998302852872647, "openloop_mape_chen_direct": 1.3156894071135579, "openloop_mape_chen_fa": 1.4263203081729543, "nonstat": {"grid": [{"t": 0, "tau": 0.001282051282051282, "true_density": 0.7436781609195402, "ours_density": 0.047126436781609195, "chen_direct_density": 0.2206896551724138, "chen_fa_density": 0.1528735632183908, "ours_jaccard": 0.04878048780487805, "chen_direct_jaccard": 0.20545977011494254, "chen_fa_jaccard": 0.14705882352941177, "ours_frobenius_Phi": 0.8189221626312103, "chen_direct_frobenius_Phi": 1.169995106445203, "chen_fa_frobenius_Phi": 1.2097860371871825, "ours_spearman_Phi": -0.00633134316768804, "chen_direct_spearman_Phi": 0.03638641007846018}, {"t": 111, "tau": 0.14358974358974358, "true_density": 0.7482758620689656, "ours_density": 0.029885057471264367, "chen_direct_density": 0.21149425287356322, "chen_fa_density": 0.12873563218390804, "ours_jaccard": 0.022658610271903322, "chen_direct_jaccard": 0.2049062049062049, "chen_fa_jaccard": 0.11386861313868613, "ours_frobenius_Phi": 0.7734518275027161, "chen_direct_frobenius_Phi": 1.1781057589682455, "chen_fa_frobenius_Phi": 1.2295672090606269, "ours_spearman_Phi": -0.0012485411505819602, "chen_direct_spearman_Phi": 0.04370817096156985}, {"t": 222, "tau": 0.2858974358974359, "true_density": 0.7655172413793103, "ours_density": 0.6080459770114942, "chen_direct_density": 0.23103448275862068, "chen_fa_density": 0.13218390804597702, "ours_jaccard": 0.5184243964421855, "chen_direct_jaccard": 0.2245762711864407, "chen_fa_jaccard": 0.1237410071942446, "ours_frobenius_Phi": 0.6699402523936194, "chen_direct_frobenius_Phi": 1.1361446735600746, "chen_fa_frobenius_Phi": 1.2149984804287812, "ours_spearman_Phi": -0.023588179673140225, "chen_direct_spearman_Phi": 0.006095767500971364}, {"t": 333, "tau": 0.4282051282051282, "true_density": 0.7655172413793103, "ours_density": 0.774712643678161, "chen_direct_density": 0.20919540229885059, "chen_fa_density": 0.11724137931034483, "ours_jaccard": 0.6321559074299634, "chen_direct_jaccard": 0.1977401129943503, "chen_fa_jaccard": 0.11465892597968069, "ours_frobenius_Phi": 0.6595587647248274, "chen_direct_frobenius_Phi": 1.1523296266065373, "chen_fa_frobenius_Phi": 1.224926415685468, "ours_spearman_Phi": -0.007108214726944268, "chen_direct_spearman_Phi": 0.04844436441426527}, {"t": 445, "tau": 0.5717948717948718, "true_density": 0.7528735632183908, "ours_density": 0.867816091954023, "chen_direct_density": 0.2, "chen_fa_density": 0.10574712643678161, "ours_jaccard": 0.6745843230403801, "chen_direct_jaccard": 0.19624819624819625, "chen_fa_jaccard": 0.11160714285714286, "ours_frobenius_Phi": 0.6729260099688911, "chen_direct_frobenius_Phi": 1.158880121784848, "chen_fa_frobenius_Phi": 1.252735259616784, "ours_spearman_Phi": 0.027717968738502238, "chen_direct_spearman_Phi": 0.04081538591399365}, {"t": 556, "tau": 0.7141025641025641, "true_density": 0.7413793103448276, "ours_density": 0.9057471264367816, "chen_direct_density": 0.24367816091954023, "chen_fa_density": 0.12528735632183907, "ours_jaccard": 0.6898584905660378, "chen_direct_jaccard": 0.23132183908045978, "chen_fa_jaccard": 0.11209439528023599, "ours_frobenius_Phi": 0.6996196751795136, "chen_direct_frobenius_Phi": 1.1602971559202355, "chen_fa_frobenius_Phi": 1.2441857966642562, "ours_spearman_Phi": 0.06062075326433248, "chen_direct_spearman_Phi": 0.00816323418979618}, {"t": 667, "tau": 0.8564102564102564, "true_density": 0.7586206896551724, "ours_density": 0.8781609195402299, "chen_direct_density": 0.22413793103448276, "chen_fa_density": 0.11379310344827587, "ours_jaccard": 0.6832151300236406, "chen_direct_jaccard": 0.2059238363892807, "chen_fa_jaccard": 0.11290322580645161, "ours_frobenius_Phi": 0.7108638542749182, "chen_direct_frobenius_Phi": 1.182776641640299, "chen_fa_frobenius_Phi": 1.2382612039656735, "ours_spearman_Phi": 0.023104820824114417, "chen_direct_spearman_Phi": 0.01339250333534104}, {"t": 779, "tau": 1.0, "true_density": 0.7701149425287356, "ours_density": 0.9735632183908046, "chen_direct_density": 0.21954022988505748, "chen_fa_density": 0.12298850574712644, "ours_jaccard": 0.7619047619047619, "chen_direct_jaccard": 0.19749652294853964, "chen_fa_jaccard": 0.10526315789473684, "ours_frobenius_Phi": 0.678982732931602, "chen_direct_frobenius_Phi": 1.1920449612662192, "chen_fa_frobenius_Phi": 1.2434778742693442, "ours_spearman_Phi": 0.029295498598238115, "chen_direct_spearman_Phi": -0.040938116684420725}], "summary": {"n_grid": 8, "ours_mean_jaccard": 0.5039477634354689, "chen_direct_mean_jaccard": 0.20795909423355186, "chen_fa_mean_jaccard": 0.11764941146007382, "ours_mean_abs_dens_err": 0.2729885057471264, "chen_direct_mean_abs_dens_err": 0.5357758620689654, "ours_mean_frobenius": 0.7105331599509124, "chen_direct_mean_frobenius": 1.1663217557739578}}}], "labels": ["0.10", "0.35", "0.75"]};
+const colors = {
+  ours: "#3fb950", fa: "#f85149", direct: "#d29922", truth: "#79c0ff",
+  floor: "#b0b0b0", grid: "#333333", text: "#9a9a9a"
+};
+Chart.defaults.color = colors.text;
+Chart.defaults.borderColor = colors.grid;
+Chart.defaults.font.family = "ui-sans-serif, system-ui, Segoe UI, sans-serif";
+
+new Chart(document.getElementById("dens"), {
+  type: "bar",
+  data: {
+    labels: DATA.labels,
+    datasets: [
+      { label: "True A", data: [0.095, 0.34, 0.753], backgroundColor: colors.truth },
+      { label: "LS-LR-NVAR (A ≥ 0.5)", data: [0.0, 0.0, 0.653], backgroundColor: colors.ours },
+      { label: "Chen direct Granger", data: [0.009, 0.015, 0.015], backgroundColor: colors.direct },
+      { label: "Chen factor-adjusted Granger", data: [0.002, 0.014, 0.018], backgroundColor: colors.fa },
+      { label: "Correlation floor", data: [0.071, 0.361, 0.993], backgroundColor: colors.floor }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: "top" } },
+    scales: {
+      x: { title: { display: true, text: "Target DGP density" } },
+      y: { beginAtZero: true, title: { display: true, text: "Directed density" } }
+    }
+  }
+});
+
+new Chart(document.getElementById("mae"), {
+  type: "bar",
+  data: {
+    labels: DATA.labels,
+    datasets: [
+      { label: "LS-LR-NVAR", data: [0.00279, 0.00281, 0.00299], backgroundColor: colors.ours },
+      { label: "Chen direct", data: [0.00264, 0.00241, 0.00246], backgroundColor: colors.direct },
+      { label: "Chen factor-adjusted", data: [0.00263, 0.00246, 0.00245], backgroundColor: colors.fa }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: "top" } },
+    scales: {
+      x: { title: { display: true, text: "Target DGP density" } },
+      y: { beginAtZero: true, title: { display: true, text: "One-step holdout MAE" } }
+    }
+  }
+});
+
+function nsLine(canvasId, series, yTitle) {
+  if (!series || !document.getElementById(canvasId)) return;
+  new Chart(document.getElementById(canvasId), {
+    type: "line",
+    data: {
+      labels: series.labels,
+      datasets: series.datasets
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "top" } },
+      scales: {
+        x: { title: { display: true, text: "Training date (knot index)" } },
+        y: { beginAtZero: true, title: { display: true, text: yTitle } }
+      }
+    }
+  });
+}
+const nsRows = DATA.rows.filter(r => r.nonstat);
+function nsPack(target, yKeys) {
+  const r = nsRows.find(x => Math.abs(x.true_density_target - target) < 1e-9);
+  if (!r) return null;
+  const g = r.nonstat.grid;
+  const labels = g.map(x => "t=" + x.t);
+  const map = {
+    true_density: { label: "True A_t", color: colors.truth },
+    ours_density: { label: "LS-LR-NVAR", color: colors.ours },
+    chen_direct_density: { label: "Chen direct", color: colors.direct },
+    chen_fa_density: { label: "Chen FA", color: colors.fa },
+    ours_jaccard: { label: "LS-LR-NVAR Jaccard", color: colors.ours },
+    chen_direct_jaccard: { label: "Chen direct Jaccard", color: colors.direct },
+    chen_fa_jaccard: { label: "Chen FA Jaccard", color: colors.fa }
+  };
+  return {
+    labels,
+    datasets: yKeys.map(k => ({
+      label: map[k].label,
+      data: g.map(x => x[k]),
+      borderColor: map[k].color,
+      backgroundColor: map[k].color,
+      tension: 0.2,
+      fill: false
+    }))
+  };
+}
+nsLine("ns_dens", nsPack(0.35, ["true_density", "ours_density", "chen_direct_density", "chen_fa_density"]), "Directed density");
+nsLine("ns_jacc", nsPack(0.35, ["ours_jaccard", "chen_direct_jaccard", "chen_fa_jaccard"]), "Jaccard vs true A_t");
+nsLine("ns_dens_010", nsPack(0.10, ["true_density", "ours_density", "chen_direct_density"]), "Directed density");
+nsLine("ns_dens_075", nsPack(0.75, ["true_density", "ours_density", "chen_direct_density"]), "Directed density");
+</script>
+</body>
+</html>

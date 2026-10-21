@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Network measures over time — LS-LR-NVAR vs Chen TV-LASSO</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #181818;
+    --text: #e6e6e6;
+    --muted: #9a9a9a;
+    --faint: #6e6e6e;
+    --card: #222222;
+    --stroke: #333333;
+    --ours: #3fb950;
+    --fa: #f85149;
+    --dir: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--bg); color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, Segoe UI, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 8px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+  h3 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; }
+  p.lead, p.note { color: var(--muted); margin: 0 0 12px; }
+  p.caption { color: var(--faint); font-size: 12px; margin: 6px 0 0; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
+  .pill {
+    border: 1px solid var(--stroke); background: transparent; color: var(--muted);
+    border-radius: 999px; padding: 3px 10px; font-size: 12px;
+  }
+  .pill.active { background: #2a2a2a; color: var(--text); border-color: #555; }
+  .callout {
+    border: 1px solid #2f4f6f; background: #1c2833; padding: 12px 14px; border-radius: 8px;
+    margin: 16px 0 20px; color: var(--text);
+  }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0 8px; }
+  .stat .v { font-size: 22px; font-weight: 600; }
+  .stat .l { color: var(--muted); font-size: 12px; }
+  .stat.ours .v { color: var(--ours); }
+  .stat.fa .v { color: var(--fa); }
+  .stat.dir .v { color: var(--dir); }
+  .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .card { border: 1px solid var(--stroke); background: var(--card); border-radius: 8px; }
+  .card-h { font-size: 12px; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--stroke);
+            display: flex; justify-content: space-between; }
+  .card-b { padding: 12px 14px; }
+  .chart { background: var(--card); border: 1px solid var(--stroke); border-radius: 8px; padding: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid var(--stroke); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid var(--stroke); text-align: left; }
+  th { background: #202020; position: sticky; top: 0; font-weight: 600; }
+  tr:nth-child(even) { background: #1c1c1c; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  hr { border: 0; border-top: 1px solid var(--stroke); margin: 28px 0; }
+  @media (max-width: 900px) {
+    .stats, .cards, .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Network measures over time — LS-LR-NVAR vs Chen TV-LASSO</h1>
+  <p class="lead">Directed graphs on the 30 current DJIA names, training window 2016-08-09 to 2026-02-05 (2,387 return days). LS-LR-NVAR is the posterior-mean probit adjacency (edge if mean probability ≥ 0.5). Chen et al. is a local-linear LASSO Granger graph: j → i if any lag of j is nonzero in equation i. Primary Chen spec is Section 5 factor-adjusted idiosyncratics (PCA k = 3, 57.8% of return variance).</p>
+  <div class="pills">
+    <span class="pill active">Train through 2026-02-05</span>
+    <span class="pill">Ours: month-end of daily A<sub>t</sub></span>
+    <span class="pill">Chen: 36 local graphs, tau in [0.18, 1]</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat ours"><div class="v">78.6%</div><div class="l">LS-LR-NVAR mean density</div></div>
+    <div class="stat fa"><div class="v">1.1%</div><div class="l">Chen factor-adjusted mean density</div></div>
+    <div class="stat dir"><div class="v">9.8%</div><div class="l">Chen direct LASSO mean density</div></div>
+    <div class="stat"><div class="v">99.7%</div><div class="l">LS-LR-NVAR mean reciprocity</div></div>
+  </div>
+
+  <div class="callout">
+    <strong>These are not the same kind of edge</strong>
+    LS-LR-NVAR estimates a contemporaneous association network (probit latents plus a |corr| ≥ 0.35 floor). Chen estimates time-varying Granger links after L1 shrinkage. A denser LS-LR-NVAR graph is expected; the interesting comparison is how topology and time variation differ once that is granted.
+  </div>
+
+  <h2>Average topology</h2>
+  <p class="note">Means over the aligned 2018-04 to 2026-02 grid (36 Chen dates; LS-LR-NVAR taken at the nearest month-end). Density is directed (870 possible edges). Clustering is undirected transitivity. Gini is out-degree inequality (0 = equal, 1 = one hub).</p>
+  <div class="chart"><canvas id="means" height="90"></canvas></div>
+  <p class="caption">Source: compare_networks_over_time.py · djia_adj_close_wide_10y.csv · n = 30.</p>
+
+  <div class="cards">
+    <div class="card"><div class="card-h">LS-LR-NVAR<span>association</span></div>
+      <div class="card-b">Almost complete, nearly undirected, and egalitarian: ~684 of 870 directed edges, reciprocity 99.7%, clustering 86.5%, Gini 0.12, one connected component. Highest out-degree names stay HD, CSCO, HON, SHW.
+      <p class="caption">Density moves only 78.3–79.0% over nine years. The correlation floor and a tightly clipped RW step on the dynamic latents keep the graph nearly static.</p></div></div>
+    <div class="card"><div class="card-h">Factor-adjusted LASSO<span>primary Chen spec</span></div>
+      <div class="card-b">After removing three return factors, residual Granger structure is thin: mean 9 edges, density 1.1%, reciprocity 1.3%. The graph is often empty or a few spokes. Mean largest-component share is 24%.
+      <p class="caption">Two mild density bumps: 2019–2020 (peak 3.1%) and late 2025–early 2026 (end 2.2%, hubs MMM and AMZN).</p></div></div>
+    <div class="card"><div class="card-h">Direct LASSO<span>robustness</span></div>
+      <div class="card-b">Raw-return Granger graphs are denser and more cyclic: mean density 9.8%, clustering 28.6%, largest component 76%. Reciprocity is 36% around 2020 and zero after 2022.
+      <p class="caption">Common factors create many contemporaneous-looking lags. End-sample hubs are GS (17), AXP (13), JPM (11).</p></div></div>
+  </div>
+
+  <h2>Density over time</h2>
+  <p class="note">LS-LR-NVAR stays near 79% on this scale, so the two LASSO series sit on the axis. The next chart zooms those two.</p>
+  <div class="chart"><canvas id="densityAll" height="90"></canvas></div>
+  <p class="caption">Directed density (%) · LS-LR-NVAR month-end nearest to each Chen tau · 2018-04-24 to 2026-02-05.</p>
+
+  <h3>LASSO density only</h3>
+  <p class="note">Direct TV-LASSO rises through 2019, peaks at 23.7% in July 2020, collapses through 2022 (2.3% in January 2022), then rebuilds to 8.9% by February 2026. Factor-adjusted stays below 3.1% throughout.</p>
+  <div class="chart"><canvas id="densityLasso" height="90"></canvas></div>
+  <p class="caption">Directed density (%) · local-linear LASSO Granger graphs, same penalty as LassoCV at tau = 1.</p>
+
+  <h2>Reciprocity and clustering</h2>
+  <div class="grid2">
+    <div>
+      <h3>Reciprocity</h3>
+      <div class="chart"><canvas id="recip" height="140"></canvas></div>
+      <p class="caption">Share of directed edges that have a reverse edge. LS-LR-NVAR is essentially undirected. Direct LASSO is mutual only in the 2019–2021 dense spell.</p>
+    </div>
+    <div>
+      <h3>Undirected clustering</h3>
+      <div class="chart"><canvas id="clust" height="140"></canvas></div>
+      <p class="caption">Global transitivity on the symmetrized graph. Direct LASSO triangles peak with COVID-era density; factor-adjusted triangles are rare.</p>
+    </div>
+  </div>
+
+  <h2>Concentration and connectivity</h2>
+  <div class="grid2">
+    <div>
+      <h3>Out-degree Gini</h3>
+      <div class="chart"><canvas id="gini" height="140"></canvas></div>
+      <p class="caption">LS-LR-NVAR degrees are nearly equal (Gini ~0.12). LASSO graphs are hub-and-spoke (Gini 0.6–0.9). Factor-adjusted Gini is 0 when the graph is empty.</p>
+    </div>
+    <div>
+      <h3>Largest weakly connected component</h3>
+      <div class="chart"><canvas id="lcc" height="140"></canvas></div>
+      <p class="caption">LS-LR-NVAR is always one component. Direct LASSO is fully connected in 2019–mid-2021, then fragments. Factor-adjusted never exceeds 63% of names.</p>
+    </div>
+  </div>
+
+  <h2>Who is central</h2>
+  <p class="note">Top five out-degree names at the start, middle, and end of each series. Counts are directed out-degree (number of names that name Granger-causes, or, for LS-LR-NVAR, number of association neighbors).</p>
+  <table>
+    <thead><tr><th>Model</th><th>Start (2018-04 / 2016-08)</th><th>Mid-sample</th><th>End (2026-02-05)</th></tr></thead>
+    <tbody>
+      <tr><td>LS-LR-NVAR</td><td>HD (29), CSCO (28), HON (28), SHW (28), JPM (27)</td><td>HD (29), CSCO (28), HON (28), SHW (28), MSFT (27)</td><td>HD (29), CSCO (28), HON (28), SHW (28), MSFT (27)</td></tr>
+      <tr><td>Chen factor-adjusted</td><td>empty graph</td><td>AMZN (2), CSCO (1), PG (1)</td><td>MMM (6), AMZN (5), GS (2), CSCO (1), CVX (1)</td></tr>
+      <tr><td>Chen direct LASSO</td><td>AXP (1), GS (1)</td><td>AXP (8), GS (4), JPM (4), HD (3), DIS (1)</td><td>GS (17), AXP (13), JPM (11), HD (8), WMT (5)</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">LS-LR-NVAR hubs barely change. Chen direct concentrates Granger influence in GS, AXP, and JPM by the forecast origin.</p>
+
+  <hr/>
+  <h2>Protocol</h2>
+  <div class="grid2">
+    <div>
+      <h3>LS-LR-NVAR</h3>
+      <p class="note">month-end of daily posterior-mean A_t (threshold 0.5). Blocked Gibbs, 24 sweeps, 12 burn-in, thin 2 (6 kept draws). Topology at probability 0.5. Same correlation floor and tau clip as the 6-month forecast program.</p>
+    </div>
+    <div>
+      <h3>Chen TV-LASSO</h3>
+      <p class="note">36 local-linear LASSO Granger graphs, tau in [0.18, 1]. Equation-wise LassoCV once at tau = 1, then that lambda reused on the grid with local-linear Epanechnikov weights (h = 0.20, p = 2). Own lags are not counted as Granger edges.</p>
+    </div>
+  </div>
+  <p class="caption">Rebuilt from JSON by render_network_canvas.py · data/network_measures_over_time.json · compare_networks_over_time.py</p>
+</div>
+<script>
+const DATA = {"window": {"start": "2016-08-09", "end": "2026-02-05", "n_stocks": 30, "ours_resolution": "month-end of daily posterior-mean A_t (threshold 0.5)", "chen_resolution": "36 local-linear LASSO Granger graphs, tau in [0.18, 1]", "factor_var_explained": 0.5782155814462532}, "summary": {"LS-LR-NVAR": {"mean_density": 0.7858170914542729, "end_density": 0.7850574712643679, "mean_reciprocity": 0.9971685397985596, "mean_clustering": 0.8648038101751271, "mean_gini": 0.11715661286102755, "mean_lcc": 1.0}, "Chen factor-adjusted LASSO": {"mean_density": 0.010504469987228609, "end_density": 0.021839080459770115, "mean_reciprocity": 0.012602880658436212, "mean_clustering": 0.04314444468810491, "mean_gini": 0.7460030448127426, "mean_lcc": 0.24259259259259258}, "Chen direct LASSO": {"mean_density": 0.09786079182630908, "end_density": 0.08850574712643679, "mean_reciprocity": 0.12558574361495448, "mean_clustering": 0.285735324148255, "mean_gini": 0.6384761625576449, "mean_lcc": 0.7555555555555556}}, "labels": ["Apr 18", "Jul 18", "Oct 18", "Dec 18", "Mar 19", "Jun 19", "Aug 19", "Nov 19", "Feb 20", "Apr 20", "Jul 20", "Oct 20", "Dec 20", "Mar 21", "Jun 21", "Aug 21", "Nov 21", "Jan 22", "Apr 22", "Jul 22", "Sep 22", "Dec 22", "Mar 23", "Jun 23", "Aug 23", "Nov 23", "Feb 24", "Apr 24", "Jul 24", "Oct 24", "Dec 24", "Mar 25", "Jun 25", "Aug 25", "Nov 25", "Feb 26"], "density": {"ours": [78.85, 78.85, 78.85, 78.74, 78.51, 78.62, 78.62, 78.51, 78.51, 78.51, 78.51, 78.51, 78.51, 78.39, 78.39, 78.39, 78.51, 78.51, 78.51, 78.39, 78.51, 78.51, 78.39, 78.39, 78.39, 78.51, 78.39, 78.39, 78.39, 78.39, 78.51, 78.51, 78.51, 78.51, 78.51, 78.51], "fa": [0.0, 0.0, 0.0, 0.11, 0.57, 2.3, 2.76, 3.1, 3.1, 3.1, 2.76, 2.53, 1.84, 1.38, 0.69, 0.34, 0.34, 0.34, 0.46, 0.34, 0.34, 0.34, 0.11, 0.11, 0.0, 0.11, 0.11, 0.23, 0.46, 0.8, 0.92, 0.92, 1.15, 1.61, 2.3, 2.18], "direct": [0.23, 2.99, 8.74, 15.17, 17.7, 20.8, 21.72, 22.53, 23.22, 23.22, 23.68, 22.76, 21.95, 20.8, 16.44, 11.95, 8.05, 2.3, 2.76, 3.22, 3.68, 3.33, 2.64, 2.18, 1.84, 1.72, 1.72, 1.84, 2.41, 2.87, 3.79, 4.48, 5.86, 6.9, 7.93, 8.85]}, "reciprocity": {"ours": [99.42, 99.42, 99.42, 99.56, 99.85, 99.71, 99.71, 99.85, 99.85, 99.85, 99.85, 99.85, 99.85, 100.0, 100.0, 100.0, 99.85, 99.85, 99.85, 99.71, 99.56, 99.56, 99.71, 99.71, 99.71, 99.85, 100.0, 100.0, 100.0, 100.0, 99.85, 99.85, 99.85, 99.85, 99.85, 99.85], "fa": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.33, 7.41, 14.81, 14.81, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "direct": [0.0, 0.0, 15.79, 24.24, 32.47, 34.25, 37.04, 37.76, 35.64, 35.64, 35.92, 33.33, 31.41, 30.94, 29.37, 21.15, 17.14, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "clustering": {"ours": [87.04, 87.04, 87.04, 86.87, 86.49, 86.47, 86.47, 86.29, 86.29, 86.29, 86.29, 86.29, 86.29, 86.3, 86.3, 86.3, 86.29, 86.29, 86.29, 86.29, 86.25, 86.25, 86.06, 86.21, 86.24, 86.24, 86.3, 86.3, 86.3, 86.3, 86.29, 86.29, 86.29, 86.29, 86.29, 86.29], "fa": [0.0, 0.0, 0.0, 0.0, 0.0, 22.22, 18.46, 25.0, 15.79, 21.95, 12.68, 10.71, 10.34, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.5, 5.0, 5.66], "direct": [0.0, 26.55, 32.43, 46.08, 50.84, 50.93, 50.38, 50.5, 53.43, 54.37, 55.18, 53.68, 53.51, 52.34, 51.2, 38.77, 31.25, 20.69, 17.86, 11.65, 15.79, 13.39, 3.57, 5.45, 17.65, 15.79, 15.79, 8.11, 0.0, 8.22, 14.52, 14.55, 13.88, 21.65, 27.71, 30.97]}, "gini": {"ours": [0.117, 0.117, 0.117, 0.119, 0.118, 0.117, 0.117, 0.116, 0.116, 0.116, 0.116, 0.116, 0.116, 0.118, 0.118, 0.118, 0.116, 0.116, 0.116, 0.117, 0.118, 0.118, 0.119, 0.119, 0.119, 0.119, 0.118, 0.118, 0.118, 0.118, 0.116, 0.116, 0.116, 0.116, 0.116, 0.116], "fa": [0.0, 0.0, 0.0, 0.967, 0.833, 0.693, 0.647, 0.646, 0.624, 0.648, 0.675, 0.676, 0.713, 0.75, 0.8, 0.9, 0.9, 0.9, 0.917, 0.9, 0.9, 0.9, 0.967, 0.967, 0.0, 0.967, 0.967, 0.933, 0.917, 0.929, 0.933, 0.933, 0.913, 0.857, 0.767, 0.819], "direct": [0.933, 0.795, 0.507, 0.427, 0.407, 0.36, 0.365, 0.332, 0.333, 0.334, 0.331, 0.338, 0.343, 0.354, 0.416, 0.514, 0.648, 0.81, 0.825, 0.814, 0.81, 0.803, 0.816, 0.872, 0.887, 0.873, 0.869, 0.842, 0.83, 0.769, 0.736, 0.746, 0.744, 0.748, 0.72, 0.732]}, "lcc": {"ours": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0], "fa": [3.33, 3.33, 3.33, 6.67, 13.33, 50.0, 53.33, 56.67, 56.67, 53.33, 53.33, 53.33, 50.0, 30.0, 13.33, 13.33, 6.67, 6.67, 10.0, 6.67, 6.67, 6.67, 6.67, 6.67, 3.33, 6.67, 6.67, 6.67, 10.0, 20.0, 23.33, 23.33, 36.67, 46.67, 63.33, 56.67], "direct": [6.67, 60.0, 86.67, 93.33, 96.67, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 93.33, 86.67, 46.67, 56.67, 63.33, 66.67, 66.67, 66.67, 53.33, 46.67, 43.33, 40.0, 43.33, 53.33, 56.67, 66.67, 76.67, 86.67, 86.67, 86.67, 90.0]}, "means": {"ours": [78.6, 99.7, 86.5, 11.7, 100.0], "fa": [1.1, 1.3, 4.3, 74.6, 24.3], "direct": [9.8, 12.6, 28.6, 63.8, 75.6]}, "tops": {"ours": ["HD (29), CSCO (28), HON (28), SHW (28), JPM (27)", "HD (29), CSCO (28), HON (28), SHW (28), MSFT (27)", "HD (29), CSCO (28), HON (28), SHW (28), MSFT (27)"], "fa": ["empty graph", "AMZN (2), CSCO (1), PG (1)", "MMM (6), AMZN (5), GS (2), CSCO (1), CVX (1)"], "direct": ["AXP (1), GS (1)", "AXP (8), GS (4), JPM (4), HD (3), DIS (1)", "GS (17), AXP (13), JPM (11), HD (8), WMT (5)"]}, "stats": {"ours_dens": "78.6%", "fa_dens": "1.1%", "dir_dens": "9.8%", "ours_recip": "99.7%"}};
+const colors = {
+  ours: "#3fb950",
+  fa: "#f85149",
+  direct: "#d29922",
+  grid: "#333333",
+  text: "#9a9a9a"
+};
+Chart.defaults.color = colors.text;
+Chart.defaults.borderColor = colors.grid;
+Chart.defaults.font.family = "ui-sans-serif, system-ui, Segoe UI, sans-serif";
+
+function lineSet(label, data, color) {
+  return {
+    label, data,
+    borderColor: color, backgroundColor: color,
+    tension: 0.15, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2
+  };
+}
+
+function lineChart(id, datasets, yLabel, beginAtZero) {
+  return new Chart(document.getElementById(id), {
+    type: "line",
+    data: { labels: DATA.labels, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "top" } },
+      scales: {
+        y: { beginAtZero: beginAtZero !== false, title: { display: true, text: yLabel } },
+        x: { ticks: { maxRotation: 60, minRotation: 45, autoSkip: true, maxTicksLimit: 18 } }
+      }
+    }
+  });
+}
+
+new Chart(document.getElementById("means"), {
+  type: "bar",
+  data: {
+    labels: ["Density (%)", "Reciprocity (%)", "Clustering (%)", "Out-degree Gini × 100", "Largest component (%)"],
+    datasets: [
+      { label: "LS-LR-NVAR", data: DATA.means.ours, backgroundColor: colors.ours },
+      { label: "Chen factor-adjusted LASSO", data: DATA.means.fa, backgroundColor: colors.fa },
+      { label: "Chen direct LASSO", data: DATA.means.direct, backgroundColor: colors.direct }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: "top" } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+
+lineChart("densityAll", [
+  lineSet("LS-LR-NVAR", DATA.density.ours, colors.ours),
+  lineSet("Chen factor-adjusted LASSO", DATA.density.fa, colors.fa),
+  lineSet("Chen direct LASSO", DATA.density.direct, colors.direct)
+], "Directed density (%)");
+
+lineChart("densityLasso", [
+  lineSet("Chen factor-adjusted LASSO", DATA.density.fa, colors.fa),
+  lineSet("Chen direct LASSO", DATA.density.direct, colors.direct)
+], "Directed density (%)");
+
+lineChart("recip", [
+  lineSet("LS-LR-NVAR", DATA.reciprocity.ours, colors.ours),
+  lineSet("Chen factor-adjusted LASSO", DATA.reciprocity.fa, colors.fa),
+  lineSet("Chen direct LASSO", DATA.reciprocity.direct, colors.direct)
+], "Reciprocity (%)");
+
+lineChart("clust", [
+  lineSet("LS-LR-NVAR", DATA.clustering.ours, colors.ours),
+  lineSet("Chen factor-adjusted LASSO", DATA.clustering.fa, colors.fa),
+  lineSet("Chen direct LASSO", DATA.clustering.direct, colors.direct)
+], "Clustering (%)");
+
+lineChart("gini", [
+  lineSet("LS-LR-NVAR", DATA.gini.ours, colors.ours),
+  lineSet("Chen factor-adjusted LASSO", DATA.gini.fa, colors.fa),
+  lineSet("Chen direct LASSO", DATA.gini.direct, colors.direct)
+], "Out-degree Gini", false);
+
+lineChart("lcc", [
+  lineSet("LS-LR-NVAR", DATA.lcc.ours, colors.ours),
+  lineSet("Chen factor-adjusted LASSO", DATA.lcc.fa, colors.fa),
+  lineSet("Chen direct LASSO", DATA.lcc.direct, colors.direct)
+], "Largest component (%)");
+</script>
+</body>
+</html>

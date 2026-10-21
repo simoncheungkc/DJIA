@@ -1,0 +1,1 @@
+{"rep": 7, "design": "C_covariance_only", "block_ratio": 1.0, "covariance": "blocks", "seed": 1107, "T": 800, "n": 30, "sweeps": 1000, "burn": 400, "thin": 40, "terminal_density": 0.4379310344827586, "correlation_spectral_ari": 1.0, "tvp_phi_ari": 0.06663265168891178, "ls_v2_phi_ari": 0.2515285801093433, "chen_direct_ari": 0.04267504116263169, "seconds": 13093.3}

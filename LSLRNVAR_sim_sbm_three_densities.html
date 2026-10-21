@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>SBM low / medium / high density</title>
+<style>
+ body { margin:0; background:#f6f4ef; color:#1b1b1b; font:16px/1.55 "Times New Roman", Times, serif; }
+ .wrap { max-width:860px; margin:0 auto; padding:36px 24px 64px; }
+ table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+ th,td { border:1px solid #ccc; padding:5px 7px; } th { background:#1f4e79; color:#fff; }
+ figure { margin:16px 0; } img { width:100%; border:1px solid #ddd; background:#fff; }
+ figcaption { font-size:13px; font-style:italic; color:#444; }
+</style></head><body><div class="wrap">
+<h1>SBM at low, medium and high density</h1>
+<p>n=30, 3 blocks, T=800, holdout 80. Low d=0.10, medium d=0.35, high d=0.40 (within-cluster p near 1).
+LS spec / LS v2 / TVP Gibbs, Chen, BCVAR. JSON: data/sim_sbm_three_densities.json.</p>
+<figure><img src='reports/figures/sim_three_heatmaps.png' alt='Adjacency vs truth at each density.'/><figcaption>Adjacency vs truth at each density.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_blocks.png' alt='Within- vs between-block density.'/><figcaption>Within- vs between-block density.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_ari.png' alt='ARI vs true blocks.'/><figcaption>ARI vs true blocks.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_step11_mae.png' alt='Step 11 open-loop MAE.'/><figcaption>Step 11 open-loop MAE.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_rolling.png' alt='Step 11e rolling MAE.'/><figcaption>Step 11e rolling MAE.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_paths.png' alt='Equal-weight paths.'/><figcaption>Equal-weight paths.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_lps.png' alt='Step 13 LPS.'/><figcaption>Step 13 LPS.</figcaption></figure>
+<figure><img src='reports/figures/sim_three_tci.png' alt='Step 12 TCI.'/><figcaption>Step 12 TCI.</figcaption></figure>
+<h2>Recovery</h2>
+<table><thead><tr><th>Density</th><th>Model</th><th>Within</th><th>Between</th><th>Jaccard</th><th>ARI</th></tr></thead>
+<tbody><tr><td>low</td><td>LS spec</td><td>0.167</td><td>0.070</td><td>0.081</td><td>0.168</td></tr><tr><td>low</td><td>LS v2</td><td>0.248</td><td>0.033</td><td>0.081</td><td>0.498</td></tr><tr><td>low</td><td>TVP</td><td>0.107</td><td>0.097</td><td>0.042</td><td>0.020</td></tr><tr><td>low</td><td>Chen direct</td><td>0.119</td><td>0.092</td><td>0.074</td><td>0.002</td></tr><tr><td>low</td><td>BCVAR</td><td>0.107</td><td>0.097</td><td>0.030</td><td>-0.020</td></tr><tr><td>low</td><td>Truth</td><td>0.267</td><td>0.025</td><td>nan</td><td>1.000</td></tr><tr><td>medium</td><td>LS spec</td><td>0.404</td><td>0.352</td><td>0.231</td><td>-0.002</td></tr><tr><td>medium</td><td>LS v2</td><td>0.804</td><td>0.172</td><td>0.485</td><td>0.549</td></tr><tr><td>medium</td><td>TVP</td><td>0.644</td><td>0.243</td><td>0.385</td><td>0.467</td></tr><tr><td>medium</td><td>Chen direct</td><td>0.359</td><td>0.372</td><td>0.212</td><td>0.062</td></tr><tr><td>medium</td><td>BCVAR</td><td>0.359</td><td>0.372</td><td>0.212</td><td>-0.012</td></tr><tr><td>medium</td><td>Truth</td><td>0.922</td><td>0.118</td><td>nan</td><td>1.000</td></tr><tr><td>high</td><td>LS spec</td><td>0.348</td><td>0.427</td><td>0.222</td><td>-0.031</td></tr><tr><td>high</td><td>LS v2</td><td>0.815</td><td>0.217</td><td>0.522</td><td>0.469</td></tr><tr><td>high</td><td>TVP</td><td>0.741</td><td>0.250</td><td>0.443</td><td>0.898</td></tr><tr><td>high</td><td>Chen direct</td><td>0.404</td><td>0.402</td><td>0.235</td><td>0.151</td></tr><tr><td>high</td><td>BCVAR</td><td>0.415</td><td>0.397</td><td>0.266</td><td>-0.013</td></tr><tr><td>high</td><td>Truth</td><td>1.000</td><td>0.133</td><td>nan</td><td>1.000</td></tr></tbody></table>
+<h2>Step 11</h2>
+<table><thead><tr><th>Density</th><th>Model</th><th>MAE</th><th>RMSE</th></tr></thead>
+<tbody><tr><td>low</td><td>LS spec</td><td>0.00388</td><td>0.00492</td></tr><tr><td>low</td><td>LS v2</td><td>0.00389</td><td>0.00493</td></tr><tr><td>low</td><td>TVP</td><td>0.00389</td><td>0.00493</td></tr><tr><td>low</td><td>Chen FA</td><td>0.00412</td><td>0.00520</td></tr><tr><td>low</td><td>Chen direct</td><td>0.00388</td><td>0.00492</td></tr><tr><td>low</td><td>BCVAR</td><td>0.00389</td><td>0.00493</td></tr><tr><td>low</td><td>BCVAR-TVP</td><td>0.00388</td><td>0.00493</td></tr><tr><td>low</td><td>Random walk</td><td>0.00524</td><td>0.00654</td></tr><tr><td>medium</td><td>LS spec</td><td>0.00415</td><td>0.00522</td></tr><tr><td>medium</td><td>LS v2</td><td>0.00415</td><td>0.00522</td></tr><tr><td>medium</td><td>TVP</td><td>0.00415</td><td>0.00522</td></tr><tr><td>medium</td><td>Chen FA</td><td>0.00446</td><td>0.00560</td></tr><tr><td>medium</td><td>Chen direct</td><td>0.00430</td><td>0.00541</td></tr><tr><td>medium</td><td>BCVAR</td><td>0.00410</td><td>0.00516</td></tr><tr><td>medium</td><td>BCVAR-TVP</td><td>0.00410</td><td>0.00516</td></tr><tr><td>medium</td><td>Random walk</td><td>0.00492</td><td>0.00619</td></tr><tr><td>high</td><td>LS spec</td><td>0.00386</td><td>0.00481</td></tr><tr><td>high</td><td>LS v2</td><td>0.00387</td><td>0.00482</td></tr><tr><td>high</td><td>TVP</td><td>0.00387</td><td>0.00482</td></tr><tr><td>high</td><td>Chen FA</td><td>0.00383</td><td>0.00478</td></tr><tr><td>high</td><td>Chen direct</td><td>0.00391</td><td>0.00488</td></tr><tr><td>high</td><td>BCVAR</td><td>0.00389</td><td>0.00484</td></tr><tr><td>high</td><td>BCVAR-TVP</td><td>0.00387</td><td>0.00483</td></tr><tr><td>high</td><td>Random walk</td><td>0.00432</td><td>0.00538</td></tr></tbody></table>
+</div></body></html>

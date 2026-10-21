@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>SBM simulation: TVP-LR-NVAR-SV vs Chen vs BCVAR</title>
+<style>
+  body { margin:0; padding:24px; background:#181818; color:#e6e6e6;
+         font:14px/1.5 ui-sans-serif, system-ui, Segoe UI, sans-serif; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  h1 { font-size:22px; font-weight:600; margin:0 0 8px; }
+  p { color:#9a9a9a; }
+  table { width:100%; border-collapse:collapse; font-size:13px; border:1px solid #333; }
+  th, td { padding:7px 8px; border-bottom:1px solid #333; text-align:left; }
+  th { background:#202020; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+</style></head><body><div class="wrap">
+<h1>SBM blocked-network forecast comparison</h1>
+<p>
+  DGP: stochastic block network VAR, n=30, T=800, holdout H=20, p=2,
+  densities 0.10, 0.35, 0.75.
+  TVP-LR-NVAR-SV Gibbs (16 sweeps), Chen TV-LASSO (direct and factor-adjusted),
+  BCVAR / BCVAR-TVP (Koop, Korobilis, Pettenuzzo 2019, R=30).
+</p>
+<table>
+<thead><tr>
+<th>Target dens.</th><th class="num">True</th><th class="num">TVP dens.</th>
+<th class="num">Chen dir</th><th class="num">BCVAR</th>
+<th class="num">1s TVP</th><th class="num">1s Chen</th><th class="num">1s BCVAR</th>
+<th class="num">OL TVP</th><th class="num">OL Chen</th><th class="num">OL BCVAR</th>
+<th>1-step win</th><th>Open-loop win</th>
+</tr></thead>
+<tbody><tr><td>0.10</td><td class='num'>0.095</td><td class='num'>0.000</td><td class='num'>0.009</td><td class='num'>1.000</td><td class='num'>0.00279</td><td class='num'>0.00264</td><td class='num'>0.00264</td><td class='num'>0.00331</td><td class='num'>0.00294</td><td class='num'>0.00282</td><td>Chen FA</td><td>BCVAR</td></tr><tr><td>0.35</td><td class='num'>0.340</td><td class='num'>0.000</td><td class='num'>0.015</td><td class='num'>1.000</td><td class='num'>0.00281</td><td class='num'>0.00241</td><td class='num'>0.00244</td><td class='num'>0.00316</td><td class='num'>0.00279</td><td class='num'>0.00284</td><td>Chen direct</td><td>Chen direct</td></tr><tr><td>0.75</td><td class='num'>0.753</td><td class='num'>0.000</td><td class='num'>0.015</td><td class='num'>1.000</td><td class='num'>0.00299</td><td class='num'>0.00246</td><td class='num'>0.00237</td><td class='num'>0.00386</td><td class='num'>0.00299</td><td class='num'>0.00316</td><td>BCVAR</td><td>Chen FA</td></tr></tbody>
+</table>
+<p>MAE on the H-step holdout of y. Source: compare_sim_three_models.py.</p>
+</div></body></html>

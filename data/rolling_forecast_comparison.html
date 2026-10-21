@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>Step 11a rolling-origin DJIA forecasts</title>
+<style>
+  body { margin:0; padding:24px; background:#181818; color:#e6e6e6;
+         font:14px/1.5 ui-sans-serif, system-ui, Segoe UI, sans-serif; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 8px; }
+  p { color:#9a9a9a; }
+  table { width:100%; border-collapse:collapse; font-size:13px; border:1px solid #333; }
+  th, td { padding:7px 10px; border-bottom:1px solid #333; text-align:left; }
+  th { background:#202020; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+</style></head><body><div class="wrap">
+<h1>Step 11a rolling-origin forecasts</h1>
+<p>
+  Holdout 2026-02-06 to 2026-08-07.
+  Network operators frozen at 2026-02-05. Each origin uses
+  the true return history up to that day and an expanding-window Minnesota intercept.
+  Horizons are 1, 5 and 21 trading days. Spec Step 11a; daily Gibbs warm-start is not repeated.
+</p>
+<table>
+<thead><tr><th>Horizon</th><th>Model</th><th class="num">Price MAPE</th>
+<th class="num">Price MAE</th><th class="num">Return MAE</th><th class="num">Return RMSFE</th>
+<th class="num">Origins</th></tr></thead>
+<tbody><tr><td>1</td><td>LS-LR-NVAR spec</td><td class='num'>1.42%</td><td class='num'>3.96</td><td class='num'>1.424 pp</td><td class='num'>1.964 pp</td><td class='num'>106</td></tr><tr><td>1</td><td>LS-LR-NVAR v2</td><td class='num'>1.42%</td><td class='num'>3.96</td><td class='num'>1.419 pp</td><td class='num'>1.960 pp</td><td class='num'>106</td></tr><tr><td>1</td><td>TVP-LR-NVAR-SV</td><td class='num'>1.42%</td><td class='num'>3.96</td><td class='num'>1.419 pp</td><td class='num'>1.960 pp</td><td class='num'>106</td></tr><tr><td>1</td><td>Chen direct</td><td class='num'>1.43%</td><td class='num'>3.99</td><td class='num'>1.426 pp</td><td class='num'>1.963 pp</td><td class='num'>106</td></tr><tr><td>1</td><td>BCVAR</td><td class='num'>1.51%</td><td class='num'>4.21</td><td class='num'>1.514 pp</td><td class='num'>2.066 pp</td><td class='num'>106</td></tr><tr><td>1</td><td>BCVAR-TVP</td><td class='num'>1.50%</td><td class='num'>4.15</td><td class='num'>1.498 pp</td><td class='num'>2.044 pp</td><td class='num'>106</td></tr><tr><td>1</td><td>Random walk</td><td class='num'>1.42%</td><td class='num'>3.96</td><td class='num'>1.420 pp</td><td class='num'>1.960 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>LS-LR-NVAR spec</td><td class='num'>3.23%</td><td class='num'>8.86</td><td class='num'>3.222 pp</td><td class='num'>4.353 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>LS-LR-NVAR v2</td><td class='num'>3.22%</td><td class='num'>8.85</td><td class='num'>3.219 pp</td><td class='num'>4.350 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>TVP-LR-NVAR-SV</td><td class='num'>3.22%</td><td class='num'>8.85</td><td class='num'>3.219 pp</td><td class='num'>4.349 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>Chen direct</td><td class='num'>3.23%</td><td class='num'>8.85</td><td class='num'>3.220 pp</td><td class='num'>4.353 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>BCVAR</td><td class='num'>3.25%</td><td class='num'>8.90</td><td class='num'>3.242 pp</td><td class='num'>4.396 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>BCVAR-TVP</td><td class='num'>3.29%</td><td class='num'>8.97</td><td class='num'>3.283 pp</td><td class='num'>4.436 pp</td><td class='num'>106</td></tr><tr><td>5</td><td>Random walk</td><td class='num'>3.22%</td><td class='num'>8.86</td><td class='num'>3.221 pp</td><td class='num'>4.353 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>LS-LR-NVAR spec</td><td class='num'>6.63%</td><td class='num'>18.98</td><td class='num'>6.655 pp</td><td class='num'>8.692 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>LS-LR-NVAR v2</td><td class='num'>6.63%</td><td class='num'>18.98</td><td class='num'>6.654 pp</td><td class='num'>8.693 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>TVP-LR-NVAR-SV</td><td class='num'>6.63%</td><td class='num'>18.98</td><td class='num'>6.654 pp</td><td class='num'>8.693 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>Chen direct</td><td class='num'>6.69%</td><td class='num'>18.95</td><td class='num'>6.669 pp</td><td class='num'>8.664 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>BCVAR</td><td class='num'>6.73%</td><td class='num'>19.11</td><td class='num'>6.710 pp</td><td class='num'>8.723 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>BCVAR-TVP</td><td class='num'>6.79%</td><td class='num'>19.26</td><td class='num'>6.783 pp</td><td class='num'>8.822 pp</td><td class='num'>106</td></tr><tr><td>21</td><td>Random walk</td><td class='num'>6.61%</td><td class='num'>19.06</td><td class='num'>6.667 pp</td><td class='num'>8.741 pp</td><td class='num'>106</td></tr></tbody>
+</table>
+<p>Return MAE / RMSFE are on the horizon log-return. Source: rolling_forecast_compare.py.</p>
+</div></body></html>

@@ -1,0 +1,14 @@
+{
+  "n": 30,
+  "T": 800,
+  "p": 2,
+  "n_blocks": 3,
+  "n_regimes": 8,
+  "density": 0.75,
+  "sparsity": 0.25,
+  "block_ratio": 4.0,
+  "sigma": 0.01,
+  "rho_cap": 0.9,
+  "seed": 0,
+  "realized_mean_density": 0.7465517241379311
+}

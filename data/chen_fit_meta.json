@@ -1,0 +1,9 @@
+{
+  "paper": "Chen, Li, Li, Linton, Journal of Econometrics 249 (2025) 105941",
+  "p": 2,
+  "bandwidth": 0.2,
+  "kernel": "Epanechnikov local linear at tau=1",
+  "n_factors": 3,
+  "factor_var_explained": 0.5782155814462532,
+  "penalty": "two-stage TV-LASSO then SCAD-weighted LASSO (eqs 3.4-3.5)"
+}

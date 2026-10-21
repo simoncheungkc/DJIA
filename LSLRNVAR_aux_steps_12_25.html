@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>Steps 12â€“25 auxiliary comparison</title>
+<style>
+ body { margin:0; background:#f6f4ef; color:#1b1b1b; font:16px/1.55 "Times New Roman", Times, serif; }
+ .wrap { max-width:860px; margin:0 auto; padding:36px 24px 64px; }
+ h1 { font-size:24px; margin:0 0 8px; } h2 { font-size:18px; margin:28px 0 8px; }
+ table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0 18px; }
+ th, td { border:1px solid #ccc; padding:6px 8px; }
+ th { background:#1f4e79; color:#fff; }
+ figure { margin:16px 0; } img { width:100%; border:1px solid #ddd; background:#fff; }
+ figcaption { font-size:13px; font-style:italic; color:#444; }
+ .note { color:#444; }
+</style></head><body><div class="wrap">
+<h1>Steps 12â€“25: auxiliary comparison</h1>
+<p class="note">Train through 5 Feb 2026. LS spec / LS v2 / TVP vs Chen FA, Chen direct, BCVAR, BCVAR-TVP.
+TVP current <code>A_mean</code> max=8.79e-04; TVP topology series use the Gibbs P path already in
+<code>network_measures_over_time.csv</code>.</p>
+<h2>Step 14 â€” topology</h2>
+<table><thead><tr><th>Model</th><th>Mean density</th><th>Clustering</th><th>Reciprocity</th><th>LCC</th></tr></thead>
+<tbody><tr><td>LS spec</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td></tr><tr><td>LS v2</td><td>0.022</td><td>0.665</td><td>0.653</td><td>0.176</td></tr><tr><td>TVP</td><td>0.696</td><td>0.860</td><td>0.958</td><td>1.000</td></tr><tr><td>Chen FA</td><td>0.011</td><td>0.043</td><td>0.013</td><td>0.243</td></tr><tr><td>Chen direct</td><td>0.098</td><td>0.286</td><td>0.126</td><td>0.756</td></tr></tbody></table>
+<figure><img src='reports/figures/aux_density.png' alt='Figure A1. Network density.'/><figcaption>Figure A1. Network density.</figcaption></figure>
+<figure><img src='reports/figures/aux_clustering.png' alt='Figure A2. Clustering.'/><figcaption>Figure A2. Clustering.</figcaption></figure>
+<figure><img src='reports/figures/aux_reciprocity.png' alt='Figure A3. Reciprocity.'/><figcaption>Figure A3. Reciprocity.</figcaption></figure>
+<figure><img src='reports/figures/aux_lcc.png' alt='Figure A4. Largest-component share.'/><figcaption>Figure A4. Largest-component share.</figcaption></figure>
+<figure><img src='reports/figures/aux_heatmaps.png' alt='Figure A5. Train-end native adjacency.'/><figcaption>Figure A5. Train-end native adjacency.</figcaption></figure>
+<h2>Step 12 â€” Dieboldâ€“Yilmaz connectedness</h2>
+<table><thead><tr><th>Model</th><th>TCI (%)</th><th>Own-variance share</th><th>Top net transmitters</th></tr></thead>
+<tbody><tr><td>LS spec</td><td>81.1</td><td>0.19</td><td>HON, V, AXP</td></tr><tr><td>LS v2</td><td>81.2</td><td>0.19</td><td>V, HON, AXP</td></tr><tr><td>TVP</td><td>81.2</td><td>0.19</td><td>V, HON, AXP</td></tr><tr><td>Chen FA</td><td>81.2</td><td>0.19</td><td>V, HON, AXP</td></tr><tr><td>Chen direct</td><td>81.1</td><td>0.19</td><td>V, HON, AXP</td></tr><tr><td>BCVAR</td><td>79.5</td><td>0.21</td><td>HON, V, AXP</td></tr><tr><td>BCVAR-TVP</td><td>80.3</td><td>0.20</td><td>V, AXP, HON</td></tr></tbody></table>
+<figure><img src='reports/figures/aux_tci_bars.png' alt='Figure A6. Train-end TCI.'/><figcaption>Figure A6. Train-end TCI.</figcaption></figure>
+<figure><img src='reports/figures/aux_tci_time.png' alt='Figure A7. Time-varying TCI.'/><figcaption>Figure A7. Time-varying TCI.</figcaption></figure>
+<h2>Step 13 â€” predictive scores</h2>
+<table><thead><tr><th>Model</th><th>Holdout LPS</th><th>Holdout RMSE (pp)</th></tr></thead>
+<tbody><tr><td>LS spec</td><td>70.16</td><td>2.062</td></tr><tr><td>LS v2</td><td>70.19</td><td>2.059</td></tr><tr><td>TVP</td><td>70.19</td><td>2.060</td></tr><tr><td>Chen FA</td><td>70.13</td><td>2.060</td></tr><tr><td>Chen direct</td><td>70.17</td><td>2.062</td></tr><tr><td>BCVAR</td><td>68.15</td><td>2.180</td></tr><tr><td>BCVAR-TVP</td><td>69.17</td><td>2.149</td></tr></tbody></table>
+<figure><img src='reports/figures/aux_lps.png' alt='Figure A8. Holdout Gaussian LPS.'/><figcaption>Figure A8. Holdout Gaussian LPS.</figcaption></figure>
+<h2>Step 18 â€” local stationarity</h2>
+<table><thead><tr><th>Model</th><th>Mean Ï</th><th>Max Ï</th><th>Share Ï&lt;1</th></tr></thead>
+<tbody><tr><td>LS spec</td><td>0.281</td><td>0.403</td><td>100%</td></tr><tr><td>LS v2</td><td>0.092</td><td>1.227</td><td>99%</td></tr><tr><td>TVP</td><td>0.110</td><td>2.400</td><td>98%</td></tr><tr><td>Chen FA</td><td>0.000</td><td>0.000</td><td>100%</td></tr><tr><td>Chen direct</td><td>0.304</td><td>0.304</td><td>100%</td></tr><tr><td>BCVAR</td><td>0.504</td><td>0.504</td><td>100%</td></tr><tr><td>BCVAR-TVP</td><td>0.459</td><td>0.459</td><td>100%</td></tr></tbody></table>
+<figure><img src='reports/figures/aux_radius.png' alt='Figure A9. Companion radius.'/><figcaption>Figure A9. Companion radius.</figcaption></figure>
+<h2>Step 21 â€” communities vs GICS</h2>
+<table><thead><tr><th>Model</th><th>ARI vs GICS</th><th>GICS modularity</th><th>PageRank hubs</th></tr></thead>
+<tbody><tr><td>LS spec</td><td>-0.048</td><td>-0.030</td><td>AAPL, V, UNH</td></tr><tr><td>LS v2</td><td>0.003</td><td>0.068</td><td>VZ, AMZN, CRM</td></tr><tr><td>Chen FA</td><td>0.041</td><td>-0.007</td><td>UNH, CRM, CSCO</td></tr><tr><td>Chen direct</td><td>0.040</td><td>-0.074</td><td>UNH, NVDA, CRM</td></tr><tr><td>BCVAR</td><td>-0.030</td><td>-0.057</td><td>KO, TRV, NVDA</td></tr><tr><td>BCVAR-TVP</td><td>-0.014</td><td>-0.047</td><td>AAPL, AMZN, AXP</td></tr></tbody></table>
+<figure><img src='reports/figures/aux_communities.png' alt='Figure A10. Sector recovery.'/><figcaption>Figure A10. Sector recovery.</figcaption></figure>
+<figure><img src='reports/figures/aux_clustering_bars.png' alt='Figure A11. Mean clustering.'/><figcaption>Figure A11. Mean clustering.</figcaption></figure>
+<h2>Step 22 â€” tail Î”CoVaR</h2>
+<figure><img src='reports/figures/aux_dcovar.png' alt='Figure A12. Mean |ΔCoVaR| at 5% (bps of daily return).'/><figcaption>Figure A12. Mean |ΔCoVaR| at 5% (bps of daily return).</figcaption></figure>
+<p>Steps 16, 17, 20, 23, 24, 25 were not estimated on this panel (no sweep log; complete data; no VECM/DMA/VB).
+Word copy: LSLRNVAR_aux_steps_12_25.docx.</p>
+</div></body></html>

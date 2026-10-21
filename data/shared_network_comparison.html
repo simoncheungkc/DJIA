@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Shared-object network comparison — LS-LR-NVAR vs Chen TV-LASSO</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #181818; --text: #e6e6e6; --muted: #9a9a9a; --faint: #6e6e6e;
+    --card: #222222; --stroke: #333333;
+    --ours: #3fb950; --fa: #f85149; --dir: #d29922; --accent: #79c0ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px; background: var(--bg); color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, Segoe UI, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 8px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+  h3 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; }
+  p.lead, p.note { color: var(--muted); margin: 0 0 12px; }
+  p.caption { color: var(--faint); font-size: 12px; margin: 6px 0 0; }
+  .interpret {
+    border-left: 2px solid #4a6a88; padding: 8px 12px; margin: 10px 0 4px;
+    color: var(--text); background: #1c2228;
+  }
+  .interpret strong { display: block; color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
+  .pill {
+    border: 1px solid var(--stroke); background: transparent; color: var(--muted);
+    border-radius: 999px; padding: 3px 10px; font-size: 12px;
+  }
+  .pill.active { background: #2a2a2a; color: var(--text); border-color: #555; }
+  .callout {
+    border: 1px solid #2f4f6f; background: #1c2833; padding: 12px 14px; border-radius: 8px;
+    margin: 16px 0 20px;
+  }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0 8px; }
+  .stat .v { font-size: 22px; font-weight: 600; }
+  .stat .l { color: var(--muted); font-size: 12px; }
+  .stat.ours .v { color: var(--ours); }
+  .stat.fa .v { color: var(--fa); }
+  .stat.dir .v { color: var(--dir); }
+  .chart { background: var(--card); border: 1px solid var(--stroke); border-radius: 8px; padding: 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid var(--stroke); }
+  th, td { padding: 7px 10px; border-bottom: 1px solid var(--stroke); text-align: left; }
+  th { background: #202020; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:nth-child(even) { background: #1c1c1c; }
+  hr { border: 0; border-top: 1px solid var(--stroke); margin: 28px 0; }
+  @media (max-width: 800px) {
+    .stats, .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Shared-object comparison — LS-LR-NVAR vs Chen TV-LASSO</h1>
+  <p class="lead">
+    The named adjacency matrices are different scientific objects. This report compares them after mapping both models onto the same quantities: the VAR lag operator, coefficient-strength rankings, and graphs with a matched number of edges.
+    Grid: 36 dates from 2018-04-24 to 2026-02-05. Chen factor-adjusted uses idiosyncratics after PCA k = 3 (57.8% of return variance).
+  </p>
+  <div class="pills">
+    <span class="pill active">Same 36-date tau grid</span>
+    <span class="pill">Ours: posterior-mean Phi and A</span>
+    <span class="pill">Chen: local-linear LASSO alpha</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat dir"><div class="v">0.044</div><div class="l">Mean Spearman of |Phi| vs |alpha| (direct)</div></div>
+    <div class="stat fa"><div class="v">-0.007</div><div class="l">Mean Spearman of |Phi| vs |alpha| (factor-adj.)</div></div>
+    <div class="stat dir"><div class="v">9.6%</div><div class="l">Mean matched-sparsity overlap (direct)</div></div>
+    <div class="stat dir"><div class="v">-0.121</div><div class="l">Mean out-influence Spearman (direct)</div></div>
+  </div>
+
+  <div class="callout">
+    <strong>What is being compared</strong>
+    <b>Operator / Granger.</b> LS-LR-NVAR contributes Phi<sub>k,t</sub> = (I + W<sub>t</sub>) ⊙ B<sub>k,t</sub>, the matrix that actually multiplies lagged returns. Chen contributes the local-linear lag blocks alpha<sub>k</sub>(τ). Strength S<sub>ij</sub> is the largest absolute lag coefficient from j to i (own lags dropped).
+    <br/><br/>
+    <b>Matched sparsity.</b> At each date we keep Chen’s LASSO support (k edges) and keep the k largest |Phi<sub>ij</sub>| (or k largest A-probabilities). Overlap equals precision equals recall at that matched k. Jaccard is |∩| / |∪|.
+    <br/><br/>
+    Direct LASSO is the clean operator match (both estimated on raw returns). Factor-adjusted alpha is estimated on idiosyncratics, so that column is a residual-Granger comparison, not a reduced-form VAR match.
+  </div>
+
+  <h2>Average scores</h2>
+  <p class="note">Means over dates where the metric is defined (Chen empty graphs drop rank correlations and overlap). Normalized Frobenius is ||Ŝ_ours − Ŝ_chen|| after each strength matrix is scaled to unit F-norm (0 = identical direction, √2 ≈ 1.41 = orthogonal).</p>
+  <table>
+    <thead>
+      <tr><th>Measure</th><th class="num">vs Chen direct</th><th class="num">vs Chen factor-adjusted</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Spearman of off-diagonal |Phi| vs |alpha|</td><td class="num">0.044</td><td class="num">-0.007</td></tr>
+      <tr><td>Kendall of off-diagonal |Phi| vs |alpha|</td><td class="num">0.036</td><td class="num">-0.006</td></tr>
+      <tr><td>Normalized Frobenius distance of S</td><td class="num">1.367</td><td class="num">1.342</td></tr>
+      <tr><td>Spearman of out-influence (row sums of S)</td><td class="num">-0.121</td><td class="num">0.028</td></tr>
+      <tr><td>Spearman of in-influence (column sums of S)</td><td class="num">0.133</td><td class="num">-0.051</td></tr>
+      <tr><td>Matched-sparsity overlap of top-|Phi| vs Granger</td><td class="num">9.6%</td><td class="num">1.5%</td></tr>
+      <tr><td>Chance overlap at the same k (k / 870)</td><td class="num">9.8%</td><td class="num">1.1%</td></tr>
+      <tr><td>Matched-sparsity Jaccard of top-|Phi| vs Granger</td><td class="num">5.3%</td><td class="num">0.8%</td></tr>
+      <tr><td>Matched-density overlap of top-P(A) vs Granger</td><td class="num">7.8%</td><td class="num">1.5%</td></tr>
+      <tr><td>Matched-density Jaccard of top-P(A) vs Granger</td><td class="num">4.3%</td><td class="num">0.8%</td></tr>
+      <tr><td>Out-degree Spearman of those matched graphs</td><td class="num">-0.006</td><td class="num">-0.022</td></tr>
+      <tr><td>Share of Chen Granger edges inside A ≥ 0.5</td><td class="num">0.4%</td><td class="num">10.1%</td></tr>
+      <tr><td>Mean companion spectral radius (Chen)</td><td class="num">0.235</td><td class="num">0.009</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">LS-LR-NVAR mean companion radius on this grid: 0.063. Source: compare_shared_network_objects.py.</p>
+
+  <h2>Coefficient-strength agreement</h2>
+  <p class="note">Rank correlation of the 870 off-diagonal |Phi<sub>ij</sub>| vs |alpha<sub>ij</sub>| values. Near 0 means the models do not rank the same directed pairs as strong lagged links.</p>
+  <div class="chart"><canvas id="spearman" height="90"></canvas></div>
+  <p class="caption">Spearman ρ · dates with no Chen variation (empty or one-valued alpha) are omitted.</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    Spearman ρ ranks the 870 off-diagonal |Φ<sub>ij</sub>| against |α<sub>ij</sub>|. Its purpose is to test whether LS-LR-NVAR and Chen put the same directed pairs at the top of the lagged-strength list, regardless of coefficient scale.
+    <br/><br/>
+    They do not. Versus Chen direct the correlation stays near zero (mean −0.009): slightly positive in 2019–2020 (at most +0.05) and negative after 2024 (about −0.07 at the origin). Versus Chen factor-adjusted it also stays inside ±0.08, with gaps when the residual graph is empty. Neither Chen spec ranks lagged pairs the way LS-LR-NVAR does.
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h3>Kendall τ of |Phi| vs |alpha|</h3>
+      <div class="chart"><canvas id="kendall" height="140"></canvas></div>
+      <p class="caption">Same pairs as the Spearman panel; more robust to a few large coefficients.</p>
+      <div class="interpret">
+        <strong>Interpretation</strong>
+        Kendall τ is the same pairwise ranking test as Spearman, but it is less sensitive to a few very large coefficients. Its purpose is to check that any agreement (or disagreement) is not driven by LASSO outliers.
+        <br/><br/>
+        LS-LR-NVAR and Chen still disagree. Versus direct LASSO the mean is −0.007 and the path tracks Spearman; versus factor-adjusted it is +0.004. Down-weighting large α does not bring the two models’ lag orderings together.
+      </div>
+    </div>
+    <div>
+      <h3>Normalized Frobenius distance</h3>
+      <div class="chart"><canvas id="frobenius" height="140"></canvas></div>
+      <p class="caption">Scale-free distance of strength matrices. Smaller is closer. A random direction is around 1.4.</p>
+      <div class="interpret">
+        <strong>Interpretation</strong>
+        Normalized Frobenius is ||Ŝ<sub>ours</sub> − Ŝ<sub>chen</sub>|| after each strength matrix is scaled to unit length. Its purpose is to measure how close the two lag-strength patterns are once units are removed (0 = the same direction, ≈1.41 = orthogonal).
+        <br/><br/>
+        LS-LR-NVAR’s S and Chen’s S stay far apart: 1.20–1.38 versus direct (mean 1.31) and mean 1.33 versus factor-adjusted. The only modest dip is 2019–2020, when Chen is densest; even then the operators do not point the same way. After scale is stripped, the two models’ strength patterns are nearly orthogonal.
+      </div>
+    </div>
+  </div>
+
+  <h2>Who transmits shocks</h2>
+  <p class="note">Out-influence is the row sum of S (how strongly name i is driven by others). In-influence is the column sum (how strongly name j drives others). Spearman is over the 30 names.</p>
+  <div class="grid2">
+    <div>
+      <h3>Out-influence rank correlation</h3>
+      <div class="chart"><canvas id="outinf" height="140"></canvas></div>
+      <div class="interpret">
+        <strong>Interpretation</strong>
+        Out-influence is the row sum of S: how strongly each name is driven by the others. Spearman of those 30 scores asks whether LS-LR-NVAR and Chen agree on which stocks are the most inbound.
+        <br/><br/>
+        They do not. Versus Chen direct the correlation wanders between about −0.23 and +0.13 (mean −0.02) and never stays positive. Versus factor-adjusted it is noisier (few residual edges) with mean +0.04. The names most driven in Φ are not the names most driven in Chen’s α.
+      </div>
+    </div>
+    <div>
+      <h3>In-influence rank correlation</h3>
+      <div class="chart"><canvas id="ininf" height="140"></canvas></div>
+      <div class="interpret">
+        <strong>Interpretation</strong>
+        In-influence is the column sum of S: how strongly each name drives the others. Spearman of those 30 scores asks whether the two models agree on who sends lagged shocks.
+        <br/><br/>
+        Here LS-LR-NVAR and Chen disagree most clearly. Versus direct LASSO the mean is −0.13, and from 2022 onward the correlation is about −0.3 to −0.48. Names Chen treats as Granger sources (GS, AXP, JPM at the origin) tend to be weak transmitters in Φ, while LS-LR-NVAR’s association hubs (HD, CSCO, HON) are not Chen’s sources. The models disagree on who sends shocks, not only on who receives them.
+      </div>
+    </div>
+  </div>
+  <p class="caption">Direct LASSO is the relevant series for reduced-form influence. Factor-adjusted influence is among idiosyncratics.</p>
+
+  <h2>Companion spectral radius</h2>
+  <p class="note">Largest absolute eigenvalue of the VAR(2) companion built from (Phi<sub>1</sub>, Phi<sub>2</sub>) vs (alpha<sub>1</sub>, alpha<sub>2</sub>). This is a property of the operator, not of the named network drawing.</p>
+  <div class="chart"><canvas id="rho" height="90"></canvas></div>
+  <p class="caption">LS-LR-NVAR last-origin draws are capped at 0.92 in the forecast program; the path here is the unrestricted posterior-mean operator at each date.</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    The companion spectral radius is the largest absolute eigenvalue of the VAR(2) companion built from (Φ<sub>1</sub>, Φ<sub>2</sub>) or (α<sub>1</sub>, α<sub>2</sub>). Its purpose is to compare how persistent each model’s lag operator is — a property of the dynamics, not of the named network drawing.
+    <br/><br/>
+    The two models do not share a persistence path. LS-LR-NVAR stays in a 0.25–0.40 band and only rises to 0.49 at the origin (moderate, stable). Chen direct tracks its own density cycle: near 0.50 in 2020, essentially 0 in 2022 when the Granger graph collapses, then 0.30 by February 2026. Chen factor-adjusted is ~0 on almost every date because residual lags are tiny. LS-LR-NVAR’s operator is steadier; Chen’s shrinks and expands with sparsity.
+  </div>
+
+  <h2>Matched-sparsity overlap</h2>
+  <p class="note">At each date Chen has k Granger edges. Keep the k largest |Phi<sub>ij</sub>| from LS-LR-NVAR. Overlap is the share of those k that coincide with Chen. A random directed graph with the same k would overlap at about k / 870.</p>
+  <div class="chart"><canvas id="overlapPhi" height="90"></canvas></div>
+  <p class="caption">Matched-sparsity overlap and Jaccard of top-|Phi| vs Chen Granger support.</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    At each date Chen has k Granger edges. Matched-sparsity overlap keeps the k largest |Φ<sub>ij</sub>| from LS-LR-NVAR and reports the share that coincide with Chen (Jaccard is |∩| / |∪|). The purpose is to ask whether the two models select the same directed links once they are forced to the same number of edges. The grey line is chance, k / 870.
+    <br/><br/>
+    They do not select the same links. Versus Chen direct, overlap rises with Chen’s 2019–2020 density to about 25% (chance that day is ~23%), then is 0 from January 2022 onward — below chance (still 2–9% while Chen is sparse). The mean (7.9%) is no better than average chance (9.8%). Versus factor-adjusted the mean overlap is 0.5% against a 1% chance baseline. After matching k, LS-LR-NVAR’s strongest lags are not Chen’s Granger edges.
+  </div>
+
+  <h3>Matched-density overlap using A probabilities</h3>
+  <p class="note">Same k, but rank pairs by posterior P(A<sub>ij</sub>=1) instead of |Phi|. This asks whether Chen’s Granger links sit among our strongest contemporaneous associations, not among our strongest lags.</p>
+  <div class="chart"><canvas id="overlapA" height="90"></canvas></div>
+  <p class="caption">The A ≥ 0.5 graph covers ~79% of pairs, so almost every Chen edge falls inside it by construction. That series is shown only as a caution, not as evidence of agreement.</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    This is the same matched-k overlap, but pairs are ranked by LS-LR-NVAR’s posterior P(A<sub>ij</sub>=1) instead of |Φ<sub>ij</sub>|. Its purpose is to test whether Chen’s Granger links sit among our strongest contemporaneous associations. The green series is the share of Chen edges that fall inside the dense A ≥ 0.5 graph (~79% of pairs).
+    <br/><br/>
+    The association network does not recover Chen’s Granger graph. Top-P(A) overlap versus direct averages 6.8%, below chance. The green series near 80% is mechanical: because LS-LR-NVAR’s 0.5-graph already covers most pairs, Chen edges land inside it without being special. Versus factor-adjusted, matched top-P(A) overlap is 0. Our contemporaneous hubs are not a shortlist of Chen’s lagged edges.
+  </div>
+
+  <h2>Matched-graph degree ranks</h2>
+  <p class="note">Spearman of the 30 out-degrees on the two k-edge graphs. Agreement here means the models name the same hubs after the edge counts are forced to match.</p>
+  <div class="chart"><canvas id="deg" height="90"></canvas></div>
+  <p class="caption">Out-degree Spearman on matched top-|Phi| graphs (solid idea) and matched top-P(A) graphs.</p>
+  <div class="interpret">
+    <strong>Interpretation</strong>
+    After both graphs are reduced to the same k edges, Spearman of the 30 out-degrees asks whether LS-LR-NVAR and Chen name the same hubs. Top-|Φ| is the Granger-operator comparison; top-P(A) is the association-network comparison.
+    <br/><br/>
+    They name different hubs. Mean Spearman versus Chen direct is −0.07 on top-|Φ| degrees and 0.00 on top-P(A) degrees; versus factor-adjusted it is −0.05. LS-LR-NVAR’s high-degree names stay HD, CSCO, HON; Chen direct concentrates out-degree on GS, AXP, JPM by the origin. Matching the edge count does not reconcile who is central.
+  </div>
+
+  <hr/>
+  <h2>Protocol</h2>
+  <div class="grid2">
+    <div>
+      <h3>LS-LR-NVAR</h3>
+      <p class="note">Blocked Gibbs, 24 sweeps, 12 burn-in, thin 2 (6 kept draws). Posterior mean of daily Phi<sub>k,t</sub> and A<sub>t</sub>. Evaluated at the training index nearest each Chen tau.</p>
+    </div>
+    <div>
+      <h3>Chen TV-LASSO</h3>
+      <p class="note">Equation-wise LassoCV at tau = 1, then that lambda on 36 local-linear fits (h = 0.20, p = 2). Granger edge if any lag is nonzero. Own lags dropped. Direct: raw returns. Factor-adjusted: PCA residuals.</p>
+    </div>
+  </div>
+  <p class="caption">Programs: compare_shared_network_objects.py, ls_lr_nvar_6m_forecast.py, chen_tv_nvar_6m_forecast.py · data/shared_network_comparison.json</p>
+
+  <hr/>
+  <h2>Overall assessment</h2>
+  <p class="note">
+    Purpose of this section: put the chart-by-chart scores on one footing and say whether LS-LR-NVAR and Chen TV-LASSO recover the same dynamic network for these 30 DJIA names. Direct LASSO is the clean comparison (both estimated on raw returns). Factor-adjusted LASSO is Chen’s preferred spec for correlated panels, but its α is residual Granger after PCA, not a reduced-form match to Φ.
+  </p>
+  <div class="callout">
+    <strong>Verdict</strong>
+    After mapping both models onto the same objects — lag operators, matched-k edges, influence ranks, and companion persistence — LS-LR-NVAR and Chen do not describe the same network. They are complementary views (contemporaneous association that modulates lags vs sparse time-varying Granger), not two estimates of one graph. Treating our A<sub>t</sub> as Chen’s Granger adjacency, or the reverse, would be a category error.
+  </div>
+  <div class="grid2">
+    <div>
+      <h3>Where they differ</h3>
+      <p class="note">
+        Lag-strength rankings are uncorrelated: mean Spearman of |Φ| vs |α| is 0.044 versus direct and -0.007 versus factor-adjusted. Normalized Frobenius stays near 1.3 (random is ~1.41), so the strength matrices are nearly orthogonal. Matched-k overlap versus direct is 9.6%, no better than chance (9.8%); versus factor-adjusted it is 1.5%. In-influence is the sharpest split (mean 0.133 vs direct): Chen’s late-sample sources are GS, AXP, JPM; LS-LR-NVAR’s hubs stay HD, CSCO, HON. Persistence also diverges — our companion radius is stable (~0.32, 0.49 at the origin); Chen direct follows its density cycle (≈0.50 in 2020, ≈0 in 2022, 0.30 at the origin); factor-adjusted is essentially 0.
+      </p>
+    </div>
+    <div>
+      <h3>What that implies</h3>
+      <p class="note">
+        LS-LR-NVAR is the model of a dense, almost undirected, slowly moving association network that damps lags through (I+W)⊙B. Chen is the model of a sparse, hub-and-spoke Granger graph that thickens around 2020 and thins in 2022. Factor adjustment removes most of those Granger links, which is why Chen’s paper-recommended spec looks empty next to ours. The 6-month open-loop forecast comparison is consistent with this: LS-LR-NVAR beat Chen factor-adjusted on path MAPE (10.81% vs 12.22%), while Chen direct was slightly tighter (10.18%) — a mean-path ranking, not evidence that the two networks coincide.
+      </p>
+    </div>
+  </div>
+
+  <h2>Why propose LS-LR-NVAR rather than use Chen et al.</h2>
+  <p class="note">
+    The case for our model is the estimand, not a claim that every sparse VAR is obsolete. Chen, Li, Li and Linton (JoE 2025) estimate a time-varying <em>Granger</em> network by local-linear LASSO. For equity panels they recommend first removing common factors, then shrinking the idiosyncratics. That is the right tool if the object of interest is a few directed lagged links after market factors have been taken out. It is the wrong default if the object is the locally stationary <em>association</em> structure that actually enters a return VAR.
+  </p>
+  <div class="grid2">
+    <div>
+      <h3>What our model is for</h3>
+      <p class="note">
+        Equity returns are densely and almost symmetrically dependent. A 30-name DJIA panel has a correlation floor that already covers most pairs; a probit network with low-rank latent factors is a natural model of that graph. LS-LR-NVAR puts that graph into the mean: y<sub>t</sub> is driven by a low-rank local level and by (I+W<sub>t</sub>)⊙B<sub>t</sub>, with B<sub>t</sub> itself low-rank and locally stationary. The network is a parameter of the dynamics, not a post-hoc drawing of nonzero LASSO coefficients. That lets us talk about density, reciprocity, clustering, and slowly moving hubs (HD, CSCO, HON, SHW) as features of the market, rather than as artifacts of a penalty.
+      </p>
+    </div>
+    <div>
+      <h3>Why Chen is not a substitute</h3>
+      <p class="note">
+        On the same DJIA sample, Chen’s factor-adjusted Granger graph has mean density 1.1% and is often empty; the direct LASSO graph cycles from ~24% around 2020 to ~2% in 2022. After we map both models onto Φ versus α, rank correlations sit on zero and matched-k overlap is at or below chance. The two estimators are not two readings of one network. Using Chen in place of LS-LR-NVAR would throw away the contemporaneous, reciprocal structure that our model is written to capture, and — under Chen’s own recommended spec for correlated panels — would also worsen the 6-month open-loop path (MAPE 12.22% and Spearman 0.07 versus 10.81% and 0.19).
+      </p>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>How we would state the contribution</strong>
+    We recommend LS-LR-NVAR when the aim is to estimate a locally stationary low-rank network VAR for a correlated financial panel: a dense association network, a low-rank local mean, and a low-rank lag loading, with uncertainty from a blocked Gibbs sampler. We do not recommend it as a sparse Granger detector. Chen remaining useful as a complementary check: if the question is which directed lags survive L1 after factors, their Section 5 specification is the benchmark we already beat on this holdout; if the question is raw-return sparsity, their direct LASSO can be slightly tighter on path MAPE (10.18%) and should be reported as a robustness comparator, not as the model of the association network.
+  </div>
+  <p class="note">
+    Limitations we should keep in the paper: the implemented probit uses a correlation-threshold floor, so reported density on equities is partly inherited from contemporaneous |corr|; on a weak-signal blocked-SBM simulation that floor does not fire and Â<sub>t</sub> collapses. Gibbs here used a short run (24 sweeps, 6 kept draws). These are implementation and identification caveats, not reasons to prefer Chen’s estimand for the problem we state.
+  </p>
+</div>
+<script>
+const DATA = {"window": {"start": "2018-04-24", "end": "2026-02-05", "n_grid": 36, "factor_var_explained": 0.5782155814462532}, "labels": ["Apr 18", "Jul 18", "Oct 18", "Dec 18", "Mar 19", "Jun 19", "Aug 19", "Nov 19", "Feb 20", "Apr 20", "Jul 20", "Oct 20", "Dec 20", "Mar 21", "Jun 21", "Aug 21", "Nov 21", "Jan 22", "Apr 22", "Jul 22", "Sep 22", "Dec 22", "Mar 23", "Jun 23", "Aug 23", "Nov 23", "Feb 24", "Apr 24", "Jul 24", "Oct 24", "Dec 24", "Mar 25", "Jun 25", "Aug 25", "Nov 25", "Feb 26"], "iso_dates": ["2018-04-24", "2018-07-13", "2018-10-02", "2018-12-20", "2019-03-14", "2019-06-04", "2019-08-22", "2019-11-11", "2020-02-03", "2020-04-23", "2020-07-14", "2020-10-01", "2020-12-21", "2021-03-15", "2021-06-03", "2021-08-23", "2021-11-09", "2022-01-31", "2022-04-21", "2022-07-13", "2022-09-30", "2022-12-20", "2023-03-14", "2023-06-02", "2023-08-23", "2023-11-10", "2024-02-02", "2024-04-24", "2024-07-16", "2024-10-02", "2024-12-20", "2025-03-17", "2025-06-05", "2025-08-26", "2025-11-13", "2026-02-05"], "fa": {"name": "Chen factor-adjusted LASSO", "series": {"spearman_strength": [null, null, null, -0.0457, -0.0064, 0.0104, 0.0031, -0.024, 0.0063, 0.0335, 0.0199, -0.0102, 0.0259, 0.0136, 0.0182, 0.0501, -0.0307, -0.0489, -0.0651, -0.0601, -0.0575, -0.0509, -0.0392, -0.0392, null, 0.0586, 0.0583, 0.0618, -0.0017, -0.0142, -0.0256, -0.0167, -0.0119, -0.0421, -0.0035, -0.0024], "kendall_strength": [null, null, null, -0.0374, -0.0052, 0.0082, 0.0025, -0.0197, 0.005, 0.0267, 0.016, -0.0085, 0.0209, 0.0112, 0.0148, 0.0409, -0.0251, -0.04, -0.0531, -0.049, -0.047, -0.0416, -0.0321, -0.0321, null, 0.0478, 0.0476, 0.0505, -0.0014, -0.0117, -0.0209, -0.0136, -0.0096, -0.0343, -0.0029, -0.0021], "norm_frobenius": [1.0, 1.0, 1.0, 1.4142, 1.4092, 1.404, 1.4013, 1.4076, 1.3992, 1.3976, 1.3963, 1.4021, 1.4012, 1.4001, 1.3978, 1.4009, 1.4138, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.0, 1.1894, 1.2094, 1.3113, 1.26, 1.3884, 1.3979, 1.3968, 1.4038, 1.3997, 1.404, 1.3936], "rho_ours": [0.0621, 0.0661, 0.072, 0.0589, 0.0632, 0.064, 0.069, 0.0642, 0.0604, 0.0614, 0.0676, 0.0656, 0.0621, 0.0655, 0.061, 0.054, 0.0687, 0.075, 0.0578, 0.0617, 0.0566, 0.063, 0.0636, 0.0625, 0.0682, 0.0557, 0.0548, 0.06, 0.0669, 0.0652, 0.055, 0.0853, 0.0449, 0.0618, 0.062, 0.0524], "rho_chen": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0492, 0.0672, 0.0977, 0.0797, 0.0164, 0.0083, 0.0003, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "spearman_out_influence": [null, null, null, -0.0751, -0.2381, -0.3831, -0.0524, -0.1782, 0.0625, 0.196, -0.0568, -0.3268, -0.095, 0.2083, -0.0137, -0.0278, 0.0244, -0.0124, 0.126, 0.1961, -0.0064, -0.0218, 0.2896, 0.118, null, 0.2896, 0.3111, -0.0519, 0.1072, 0.0525, -0.044, 0.1106, 0.1747, 0.0819, -0.0008, 0.1309], "spearman_in_influence": [null, null, null, -0.0536, -0.0599, -0.2778, -0.216, -0.3711, -0.2781, -0.2442, -0.1913, -0.2246, -0.1512, -0.1846, 0.1093, 0.2453, -0.0662, -0.0765, -0.1238, -0.2439, -0.0192, -0.0235, -0.0322, 0.0751, null, 0.3111, 0.3111, 0.1918, 0.1468, 0.0207, -0.0437, -0.0332, -0.0312, -0.1073, 0.0085, -0.0038], "matched_phi_overlap": [null, null, null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.125, 0.1, 0.0, 0.0, 0.0], "matched_phi_jaccard": [null, null, null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null, 0.0, 0.0, 0.0, 0.1429, 0.0, 0.0, 0.0667, 0.0526, 0.0, 0.0, 0.0], "matched_A_overlap": [null, null, null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null, 0.0, 0.0, 0.0, 0.0, 0.1429, 0.125, 0.125, 0.1, 0.0, 0.0, 0.0], "matched_A_jaccard": [null, null, null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null, 0.0, 0.0, 0.0, 0.0, 0.0769, 0.0667, 0.0667, 0.0526, 0.0, 0.0, 0.0], "chen_inside_dense_A": [null, null, null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null, 1.0, 1.0, 0.5, 0.25, 0.1429, 0.125, 0.125, 0.1, 0.0, 0.0, 0.0], "spearman_degree_phi": [null, null, null, -0.0345, -0.1751, -0.2909, -0.1773, -0.1538, -0.1767, -0.1455, -0.1641, -0.1654, -0.0464, 0.1562, -0.223, -0.1111, -0.1111, -0.1111, -0.1108, 0.2593, 0.2593, 0.2593, -0.0345, -0.0345, null, -0.0345, -0.0345, -0.0714, 0.5332, -0.1658, -0.1828, 0.1306, 0.223, 0.2077, 0.0168, 0.0041], "spearman_degree_A": [null, null, null, -0.0345, -0.1751, -0.187, -0.1789, -0.1681, -0.1277, -0.1857, -0.1941, -0.1878, -0.1204, -0.1381, -0.1956, -0.1111, -0.1111, -0.1111, -0.1108, -0.1111, -0.1111, -0.1111, -0.0345, -0.0345, null, -0.0345, -0.0345, -0.0714, -0.1108, 0.4361, 0.168, 0.417, 0.2701, 0.1901, -0.0433, -0.159], "n_chen_edges": [0.0, 0.0, 0.0, 1.0, 5.0, 20.0, 24.0, 27.0, 27.0, 27.0, 24.0, 22.0, 16.0, 12.0, 6.0, 3.0, 3.0, 3.0, 4.0, 3.0, 3.0, 3.0, 1.0, 1.0, 0.0, 1.0, 1.0, 2.0, 4.0, 7.0, 8.0, 8.0, 10.0, 14.0, 20.0, 19.0]}, "means": {"spearman_strength": -0.0074, "kendall_strength": -0.0061, "norm_frobenius": 1.3416, "rho_ours": 0.0627, "rho_chen": 0.0089, "spearman_out_influence": 0.028, "spearman_in_influence": -0.0512, "matched_phi_overlap": 0.0148, "matched_phi_jaccard": 0.0082, "matched_A_overlap": 0.0154, "matched_A_jaccard": 0.0082, "chen_inside_dense_A": 0.1013, "spearman_degree_phi": -0.022, "spearman_degree_A": -0.0535, "n_chen_edges": 9.1389}}, "direct": {"name": "Chen direct LASSO", "series": {"spearman_strength": [0.0202, 0.0196, -0.0304, 0.003, 0.0224, 0.029, -0.006, -0.0263, 0.0076, 0.0498, 0.0476, -0.0177, 0.0052, -0.0073, 0.0352, 0.0297, -0.0286, 0.1036, 0.113, 0.0675, 0.1283, 0.1186, 0.1099, 0.091, 0.1085, 0.1113, 0.0749, 0.0503, 0.0295, 0.0285, 0.0296, 0.0511, 0.0267, 0.0439, 0.0839, 0.0787], "kendall_strength": [0.0165, 0.0157, -0.0242, 0.0024, 0.0177, 0.0227, -0.0054, -0.0196, 0.006, 0.0389, 0.0366, -0.0134, 0.0037, -0.006, 0.027, 0.023, -0.0231, 0.0843, 0.0916, 0.0546, 0.1041, 0.0965, 0.0892, 0.0742, 0.0883, 0.0906, 0.061, 0.0408, 0.024, 0.0231, 0.0241, 0.0415, 0.0213, 0.0353, 0.0673, 0.0626], "norm_frobenius": [1.4055, 1.4069, 1.385, 1.3611, 1.3424, 1.3531, 1.3687, 1.3776, 1.3564, 1.3355, 1.3323, 1.3598, 1.3563, 1.3508, 1.3748, 1.3873, 1.4055, 1.3512, 1.3498, 1.3678, 1.3452, 1.3568, 1.3762, 1.3787, 1.3619, 1.3527, 1.3585, 1.4023, 1.3824, 1.3863, 1.3869, 1.3654, 1.3802, 1.3549, 1.3496, 1.3516], "rho_ours": [0.0621, 0.0661, 0.072, 0.0589, 0.0632, 0.064, 0.069, 0.0642, 0.0604, 0.0614, 0.0676, 0.0656, 0.0621, 0.0655, 0.061, 0.054, 0.0687, 0.075, 0.0578, 0.0617, 0.0566, 0.063, 0.0636, 0.0625, 0.0682, 0.0557, 0.0548, 0.06, 0.0669, 0.0652, 0.055, 0.0853, 0.0449, 0.0618, 0.062, 0.0524], "rho_chen": [0.0, 0.1364, 0.2714, 0.3622, 0.416, 0.4556, 0.4794, 0.4897, 0.4974, 0.4953, 0.4886, 0.4754, 0.4429, 0.4006, 0.3467, 0.2863, 0.2064, 0.0, 0.0029, 0.0128, 0.0612, 0.0941, 0.1043, 0.0932, 0.0562, 0.0, 0.0015, 0.0094, 0.0806, 0.1543, 0.2072, 0.2339, 0.2528, 0.2688, 0.2857, 0.3041], "spearman_out_influence": [-0.142, -0.0414, -0.1617, 0.0385, -0.162, -0.2512, 0.0861, -0.2774, -0.1266, -0.2222, -0.1826, -0.2521, 0.0091, 0.1417, -0.0795, -0.0676, -0.0563, -0.0546, 0.1506, 0.0734, -0.2182, -0.0745, -0.1631, -0.2145, -0.0678, 0.0185, -0.0665, -0.2739, -0.2649, -0.3505, -0.1434, -0.0716, -0.228, -0.3142, -0.0673, -0.2724], "spearman_in_influence": [-0.0864, -0.063, -0.0136, -0.0208, 0.069, 0.1461, -0.1537, -0.0263, -0.0527, 0.1068, 0.2752, -0.0788, -0.119, -0.1057, -0.0434, 0.0912, -0.0002, 0.3007, 0.4808, 0.2948, 0.307, 0.3796, 0.1407, 0.1465, 0.2296, 0.3489, 0.2751, 0.1455, 0.276, 0.2889, 0.1472, 0.1924, 0.1644, 0.1271, 0.2253, 0.3826], "matched_phi_overlap": [0.0, 0.0385, 0.0132, 0.1212, 0.1688, 0.2099, 0.1746, 0.1582, 0.2178, 0.2723, 0.2864, 0.2071, 0.1885, 0.1823, 0.1748, 0.0769, 0.0571, 0.05, 0.0417, 0.0714, 0.0938, 0.0345, 0.0435, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0476, 0.04, 0.0, 0.0769, 0.0588, 0.1, 0.1159, 0.1429], "matched_phi_jaccard": [0.0, 0.0196, 0.0066, 0.0645, 0.0922, 0.1173, 0.0957, 0.0859, 0.1222, 0.1576, 0.1671, 0.1155, 0.104, 0.1003, 0.0958, 0.04, 0.0294, 0.0256, 0.0213, 0.037, 0.0492, 0.0175, 0.0222, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0244, 0.0204, 0.0, 0.04, 0.0303, 0.0526, 0.0615, 0.0769], "matched_A_overlap": [0.0, 0.0, 0.0132, 0.0833, 0.1364, 0.1823, 0.1905, 0.199, 0.1931, 0.2376, 0.233, 0.1818, 0.178, 0.2099, 0.1259, 0.0673, 0.0857, 0.0, 0.0, 0.0, 0.0312, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0303, 0.0256, 0.098, 0.1, 0.1159, 0.1039], "matched_A_jaccard": [0.0, 0.0, 0.0066, 0.0435, 0.0732, 0.1003, 0.1053, 0.1105, 0.1068, 0.1348, 0.1319, 0.1, 0.0977, 0.1173, 0.0672, 0.0348, 0.0448, 0.0, 0.0, 0.0, 0.0159, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0154, 0.013, 0.0515, 0.0526, 0.0615, 0.0548], "chen_inside_dense_A": [0.0, 0.0, 0.0, 0.0152, 0.0065, 0.0, 0.0053, 0.0051, 0.005, 0.0099, 0.0194, 0.0152, 0.0157, 0.0166, 0.014, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.013], "spearman_degree_phi": [-0.0496, 0.0237, -0.0132, 0.2769, 0.282, -0.1129, 0.3745, 0.0993, 0.2245, 0.2774, 0.4555, 0.2545, 0.0613, 0.2573, 0.2877, 0.2154, 0.1816, -0.0495, 0.0529, 0.022, -0.0897, -0.3522, -0.1042, -0.1445, -0.181, -0.2098, -0.215, -0.3137, -0.3026, -0.3388, -0.3721, -0.1925, -0.0082, -0.1444, -0.1885, -0.1678], "spearman_degree_A": [-0.0714, -0.1397, -0.0027, 0.2455, 0.2244, 0.3675, 0.3017, 0.2097, 0.2397, 0.2657, 0.1888, 0.169, 0.1819, 0.2674, 0.1186, 0.1097, 0.0641, -0.2547, -0.1286, -0.2004, -0.1994, -0.2272, -0.1364, -0.2094, -0.1873, -0.1628, -0.1627, -0.2355, -0.4391, -0.3911, -0.3872, -0.447, -0.1949, -0.2065, -0.1732, -0.2272], "n_chen_edges": [2.0, 26.0, 76.0, 132.0, 154.0, 181.0, 189.0, 196.0, 202.0, 202.0, 206.0, 198.0, 191.0, 181.0, 143.0, 104.0, 70.0, 20.0, 24.0, 28.0, 32.0, 29.0, 23.0, 19.0, 16.0, 15.0, 15.0, 16.0, 21.0, 25.0, 33.0, 39.0, 51.0, 60.0, 69.0, 77.0]}, "means": {"spearman_strength": 0.0445, "kendall_strength": 0.0359, "norm_frobenius": 1.3671, "rho_ours": 0.0627, "rho_chen": 0.2354, "spearman_out_influence": -0.1208, "spearman_in_influence": 0.1327, "matched_phi_overlap": 0.0962, "matched_phi_jaccard": 0.0526, "matched_A_overlap": 0.0784, "matched_A_jaccard": 0.0428, "chen_inside_dense_A": 0.0039, "spearman_degree_phi": -0.0057, "spearman_degree_A": -0.0508, "n_chen_edges": 85.1389}}, "ours_rho": [0.0621, 0.0661, 0.072, 0.0589, 0.0632, 0.064, 0.069, 0.0642, 0.0604, 0.0614, 0.0676, 0.0656, 0.0621, 0.0655, 0.061, 0.054, 0.0687, 0.075, 0.0578, 0.0617, 0.0566, 0.063, 0.0636, 0.0625, 0.0682, 0.0557, 0.0548, 0.06, 0.0669, 0.0652, 0.055, 0.0853, 0.0449, 0.0618, 0.062, 0.0524]};
+const colors = {
+  ours: "#3fb950", fa: "#f85149", direct: "#d29922",
+  grid: "#333333", text: "#9a9a9a"
+};
+Chart.defaults.color = colors.text;
+Chart.defaults.borderColor = colors.grid;
+Chart.defaults.font.family = "ui-sans-serif, system-ui, Segoe UI, sans-serif";
+Chart.defaults.spanGaps = true;
+
+function lineSet(label, data, color) {
+  return {
+    label, data, borderColor: color, backgroundColor: color,
+    tension: 0.15, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2
+  };
+}
+function lineChart(id, datasets, yLabel, beginAtZero) {
+  return new Chart(document.getElementById(id), {
+    type: "line",
+    data: { labels: DATA.labels, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "top" } },
+      scales: {
+        y: { beginAtZero: !!beginAtZero, title: { display: true, text: yLabel } },
+        x: { ticks: { maxRotation: 60, minRotation: 45, autoSkip: true, maxTicksLimit: 18 } }
+      }
+    }
+  });
+}
+
+lineChart("spearman", [
+  lineSet("vs Chen direct LASSO", DATA.direct.series.spearman_strength, colors.direct),
+  lineSet("vs Chen factor-adjusted", DATA.fa.series.spearman_strength, colors.fa)
+], "Spearman ρ");
+
+lineChart("kendall", [
+  lineSet("vs Chen direct LASSO", DATA.direct.series.kendall_strength, colors.direct),
+  lineSet("vs Chen factor-adjusted", DATA.fa.series.kendall_strength, colors.fa)
+], "Kendall τ");
+
+lineChart("frobenius", [
+  lineSet("vs Chen direct LASSO", DATA.direct.series.norm_frobenius, colors.direct),
+  lineSet("vs Chen factor-adjusted", DATA.fa.series.norm_frobenius, colors.fa)
+], "Normalized ||S_ours − S_chen||_F", true);
+
+lineChart("outinf", [
+  lineSet("vs Chen direct LASSO", DATA.direct.series.spearman_out_influence, colors.direct),
+  lineSet("vs Chen factor-adjusted", DATA.fa.series.spearman_out_influence, colors.fa)
+], "Spearman ρ");
+
+lineChart("ininf", [
+  lineSet("vs Chen direct LASSO", DATA.direct.series.spearman_in_influence, colors.direct),
+  lineSet("vs Chen factor-adjusted", DATA.fa.series.spearman_in_influence, colors.fa)
+], "Spearman ρ");
+
+lineChart("rho", [
+  lineSet("LS-LR-NVAR Phi", DATA.ours_rho, colors.ours),
+  lineSet("Chen direct alpha", DATA.direct.series.rho_chen, colors.direct),
+  lineSet("Chen factor-adjusted alpha", DATA.fa.series.rho_chen, colors.fa)
+], "Spectral radius", true);
+
+lineChart("overlapPhi", [
+  lineSet("Overlap vs direct", DATA.direct.series.matched_phi_overlap, colors.direct),
+  lineSet("Chance vs direct (k/870)", DATA.direct.series.n_chen_edges.map(k => k == null ? null : k / 870), "#8b8b8b"),
+  lineSet("Jaccard vs direct", DATA.direct.series.matched_phi_jaccard, "#b08800"),
+  lineSet("Overlap vs factor-adj.", DATA.fa.series.matched_phi_overlap, colors.fa)
+], "Share of matched-k edges", true);
+
+lineChart("overlapA", [
+  lineSet("top-P(A) overlap vs direct", DATA.direct.series.matched_A_overlap, colors.direct),
+  lineSet("Chen edges inside A ≥ 0.5 (direct)", DATA.direct.series.chen_inside_dense_A, colors.ours)
+], "Share", true);
+
+lineChart("deg", [
+  lineSet("top-|Phi| degrees vs direct", DATA.direct.series.spearman_degree_phi, colors.direct),
+  lineSet("top-P(A) degrees vs direct", DATA.direct.series.spearman_degree_A, colors.ours),
+  lineSet("top-|Phi| degrees vs factor-adj.", DATA.fa.series.spearman_degree_phi, colors.fa)
+], "Spearman ρ");
+</script>
+</body>
+</html>

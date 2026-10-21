@@ -1,0 +1,1010 @@
+[
+  {
+    "label": "low",
+    "dgp": {
+      "n": 30,
+      "T": 800,
+      "p": 2,
+      "n_blocks": 3,
+      "n_regimes": 6,
+      "density": 0.1,
+      "sparsity": 0.9,
+      "block_ratio": 8.0,
+      "sigma": 0.004,
+      "rho_cap": 0.9,
+      "seed": 11,
+      "transition": "smooth",
+      "b_scale": 0.2,
+      "own_lag": 0.34,
+      "net_lag": 0.12,
+      "burn": 80,
+      "contemp_rho": 0.55,
+      "contemp_bg": 0.04,
+      "realized_mean_density": 0.09677011494252874,
+      "holdout": 80,
+      "design_p_in": 0.2521739130434782,
+      "design_p_out": 0.031521739130434774,
+      "last_within": 0.26666666666666666,
+      "last_between": 0.025
+    },
+    "step11": {
+      "LS spec": {
+        "mae": 0.0038791578698264624,
+        "rmse": 0.004919239707812209
+      },
+      "LS v2": {
+        "mae": 0.003888829662947432,
+        "rmse": 0.004931531610995281
+      },
+      "TVP": {
+        "mae": 0.0038888043489381055,
+        "rmse": 0.004931583153187588
+      },
+      "Chen FA": {
+        "mae": 0.0041174662314715045,
+        "rmse": 0.005203245572787364
+      },
+      "Chen direct": {
+        "mae": 0.0038824611065152712,
+        "rmse": 0.0049232229708866026
+      },
+      "BCVAR": {
+        "mae": 0.003889191361083366,
+        "rmse": 0.00493263371690224
+      },
+      "BCVAR-TVP": {
+        "mae": 0.003882897199727558,
+        "rmse": 0.004925903798499707
+      },
+      "Random walk": {
+        "mae": 0.00524135420950496,
+        "rmse": 0.006542594111110656
+      }
+    },
+    "step11e": {
+      "LS spec": {
+        "1": {
+          "mae": 0.0033793407337866584,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.003814807470626247,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003847735868665458,
+          "n": 60
+        }
+      },
+      "LS v2": {
+        "1": {
+          "mae": 0.003766661572108221,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.0038185802612774006,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.0038473070887627653,
+          "n": 60
+        }
+      },
+      "TVP": {
+        "1": {
+          "mae": 0.003764705825856439,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.0038185802981776837,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.0038473070887627653,
+          "n": 60
+        }
+      },
+      "Chen direct": {
+        "1": {
+          "mae": 0.0033391714508535873,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.0038142857116070326,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003834826235851192,
+          "n": 60
+        }
+      },
+      "BCVAR": {
+        "1": {
+          "mae": 0.0033055142422023526,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.003800494207288282,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003849490402511596,
+          "n": 60
+        }
+      },
+      "Random walk": {
+        "1": {
+          "mae": 0.003844274943238904,
+          "n": 80
+        },
+        "5": {
+          "mae": 0.005014114319443583,
+          "n": 76
+        },
+        "21": {
+          "mae": 0.0054305631193693,
+          "n": 60
+        }
+      }
+    },
+    "recovery": {
+      "LS spec": {
+        "n_ours": 87.0,
+        "n_chen": 87.0,
+        "intersection": 13.0,
+        "overlap": 0.14942528735632185,
+        "jaccard": 0.08074534161490683,
+        "recall_in_dense": 0.14942528735632185,
+        "within": 0.16666666666666666,
+        "between": 0.07,
+        "overall": 0.1,
+        "n_edges": 87.0,
+        "density": 0.1,
+        "mean_out_degree": 2.9,
+        "mean_in_degree": 2.9,
+        "reciprocity": 0.16091954022988506,
+        "undirected_density": 0.1839080459770115,
+        "clustering": 0.4133611691022965,
+        "n_components": 2.0,
+        "largest_component_share": 0.9666666666666667,
+        "out_degree_gini": 0.4961685823754789,
+        "max_out_degree": 7.0,
+        "ari_true": 0.16844648652575392,
+        "modularity_true": 0.17789062500000008
+      },
+      "LS v2": {
+        "n_ours": 87.0,
+        "n_chen": 87.0,
+        "intersection": 13.0,
+        "overlap": 0.14942528735632185,
+        "jaccard": 0.08074534161490683,
+        "recall_in_dense": 0.14942528735632185,
+        "within": 0.24814814814814815,
+        "between": 0.03333333333333333,
+        "overall": 0.1,
+        "n_edges": 87.0,
+        "density": 0.1,
+        "mean_out_degree": 2.9,
+        "mean_in_degree": 2.9,
+        "reciprocity": 0.4827586206896552,
+        "undirected_density": 0.15172413793103448,
+        "clustering": 0.4231578947368421,
+        "n_components": 4.0,
+        "largest_component_share": 0.6333333333333333,
+        "out_degree_gini": 0.3781609195402298,
+        "max_out_degree": 10.0,
+        "ari_true": 0.49776892863103833,
+        "modularity_true": 0.3591597796143246
+      },
+      "TVP": {
+        "n_ours": 87.0,
+        "n_chen": 87.0,
+        "intersection": 7.0,
+        "overlap": 0.08045977011494253,
+        "jaccard": 0.041916167664670656,
+        "recall_in_dense": 0.08045977011494253,
+        "within": 0.10740740740740741,
+        "between": 0.09666666666666666,
+        "overall": 0.1,
+        "n_edges": 87.0,
+        "density": 0.1,
+        "mean_out_degree": 2.9,
+        "mean_in_degree": 2.9,
+        "reciprocity": 0.09195402298850575,
+        "undirected_density": 0.19080459770114944,
+        "clustering": 0.20081632653061224,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.06934865900383125,
+        "max_out_degree": 4.0,
+        "ari_true": 0.020286020648339485,
+        "modularity_true": -0.05174916533604288
+      },
+      "Chen direct": {
+        "n_ours": 87.0,
+        "n_chen": 87.0,
+        "intersection": 12.0,
+        "overlap": 0.13793103448275862,
+        "jaccard": 0.07407407407407407,
+        "recall_in_dense": 0.13793103448275862,
+        "within": 0.11851851851851852,
+        "between": 0.09166666666666666,
+        "overall": 0.1,
+        "n_edges": 87.0,
+        "density": 0.1,
+        "mean_out_degree": 2.9,
+        "mean_in_degree": 2.9,
+        "reciprocity": 0.09195402298850575,
+        "undirected_density": 0.19080459770114944,
+        "clustering": 0.2660996354799514,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.8333333333333333,
+        "max_out_degree": 24.0,
+        "ari_true": 0.0021498169240114816,
+        "modularity_true": -0.0032660763536072283
+      },
+      "BCVAR": {
+        "n_ours": 87.0,
+        "n_chen": 87.0,
+        "intersection": 5.0,
+        "overlap": 0.05747126436781609,
+        "jaccard": 0.029585798816568046,
+        "recall_in_dense": 0.05747126436781609,
+        "within": 0.10740740740740741,
+        "between": 0.09666666666666666,
+        "overall": 0.1,
+        "n_edges": 87.0,
+        "density": 0.1,
+        "mean_out_degree": 2.9,
+        "mean_in_degree": 2.9,
+        "reciprocity": 0.11494252873563218,
+        "undirected_density": 0.18850574712643678,
+        "clustering": 0.17125984251968504,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.6134099616858237,
+        "max_out_degree": 13.0,
+        "ari_true": -0.01951290136196289,
+        "modularity_true": -0.009443783462224908
+      },
+      "Truth": {
+        "within": 0.26666666666666666,
+        "between": 0.025,
+        "overall": 0.1,
+        "n_edges": 87.0,
+        "density": 0.1,
+        "mean_out_degree": 2.9,
+        "mean_in_degree": 2.9,
+        "reciprocity": 0.25287356321839083,
+        "undirected_density": 0.17471264367816092,
+        "clustering": 0.25663716814159293,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.2624521072796935,
+        "max_out_degree": 7.0,
+        "ari_true": 1.0
+      }
+    },
+    "step12": {
+      "Truth": {
+        "tci": 43.6106077501974,
+        "radius": 0.7398591066704401
+      },
+      "LS spec": {
+        "tci": 39.35765117560256,
+        "radius": 0.8092074391831537
+      },
+      "LS v2": {
+        "tci": 46.992018980182294,
+        "radius": 0.06986852212066694
+      },
+      "TVP": {
+        "tci": 46.97363333670125,
+        "radius": 0.08322469008777232
+      },
+      "Chen direct": {
+        "tci": 39.416308015642784,
+        "radius": 0.7296201719685276
+      },
+      "BCVAR": {
+        "tci": 42.01079774373883,
+        "radius": 0.6822149010261414
+      }
+    },
+    "step13": {
+      "LS spec": {
+        "lps_holdout": 120.41367709667638,
+        "rmse": 0.004325137506532775
+      },
+      "LS v2": {
+        "lps_holdout": 117.5231803874015,
+        "rmse": 0.004932426520129389
+      },
+      "TVP": {
+        "lps_holdout": 117.53449154434206,
+        "rmse": 0.004930493956032497
+      },
+      "Chen direct": {
+        "lps_holdout": 120.92985341976774,
+        "rmse": 0.00426801574855902
+      },
+      "BCVAR": {
+        "lps_holdout": 120.8244368030349,
+        "rmse": 0.004210251552753531
+      }
+    }
+  },
+  {
+    "label": "medium",
+    "dgp": {
+      "n": 30,
+      "T": 800,
+      "p": 2,
+      "n_blocks": 3,
+      "n_regimes": 6,
+      "density": 0.35,
+      "sparsity": 0.65,
+      "block_ratio": 8.0,
+      "sigma": 0.004,
+      "rho_cap": 0.9,
+      "seed": 21,
+      "transition": "smooth",
+      "b_scale": 0.2,
+      "own_lag": 0.34,
+      "net_lag": 0.12,
+      "burn": 80,
+      "contemp_rho": 0.55,
+      "contemp_bg": 0.04,
+      "realized_mean_density": 0.34357471264367817,
+      "holdout": 80,
+      "design_p_in": 0.8826086956521738,
+      "design_p_out": 0.11032608695652173,
+      "last_within": 0.9222222222222223,
+      "last_between": 0.11833333333333333
+    },
+    "step11": {
+      "LS spec": {
+        "mae": 0.004146326793153133,
+        "rmse": 0.0052203495740440415
+      },
+      "LS v2": {
+        "mae": 0.004151160113179169,
+        "rmse": 0.005223044715836624
+      },
+      "TVP": {
+        "mae": 0.004151068448739263,
+        "rmse": 0.005223001347652245
+      },
+      "Chen FA": {
+        "mae": 0.0044580896748184825,
+        "rmse": 0.00560406963741135
+      },
+      "Chen direct": {
+        "mae": 0.004302667402818479,
+        "rmse": 0.0054111301189196095
+      },
+      "BCVAR": {
+        "mae": 0.004104792606993772,
+        "rmse": 0.005163441581268904
+      },
+      "BCVAR-TVP": {
+        "mae": 0.00410048867250753,
+        "rmse": 0.00516180883266771
+      },
+      "Random walk": {
+        "mae": 0.004924353507850898,
+        "rmse": 0.006190089586670659
+      }
+    },
+    "step11e": {
+      "LS spec": {
+        "1": {
+          "mae": 0.0035129699081056383,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.004252014065106103,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003958801551904108,
+          "n": 60
+        }
+      },
+      "LS v2": {
+        "1": {
+          "mae": 0.004231279564745361,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.004317606857925095,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003958831011936221,
+          "n": 60
+        }
+      },
+      "TVP": {
+        "1": {
+          "mae": 0.004228261301774413,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.004317606836501536,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003958831011936221,
+          "n": 60
+        }
+      },
+      "Chen direct": {
+        "1": {
+          "mae": 0.003427770619780455,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.004372447980889052,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.0040232744301349115,
+          "n": 60
+        }
+      },
+      "BCVAR": {
+        "1": {
+          "mae": 0.003417305874723857,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.004223693648398014,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.0039247252214365085,
+          "n": 60
+        }
+      },
+      "Random walk": {
+        "1": {
+          "mae": 0.00367678441691251,
+          "n": 80
+        },
+        "5": {
+          "mae": 0.005243450826386776,
+          "n": 76
+        },
+        "21": {
+          "mae": 0.005793864114865919,
+          "n": 60
+        }
+      }
+    },
+    "recovery": {
+      "LS spec": {
+        "n_ours": 320.0,
+        "n_chen": 320.0,
+        "intersection": 120.0,
+        "overlap": 0.375,
+        "jaccard": 0.23076923076923078,
+        "recall_in_dense": 0.375,
+        "within": 0.40370370370370373,
+        "between": 0.3516666666666667,
+        "overall": 0.367816091954023,
+        "n_edges": 320.0,
+        "density": 0.367816091954023,
+        "mean_out_degree": 10.666666666666666,
+        "mean_in_degree": 10.666666666666666,
+        "reciprocity": 0.39375,
+        "undirected_density": 0.5908045977011495,
+        "clustering": 0.6996579734929457,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.2872916666666665,
+        "max_out_degree": 24.0,
+        "ari_true": -0.002217736526728776,
+        "modularity_true": -0.002566276552256662
+      },
+      "LS v2": {
+        "n_ours": 320.0,
+        "n_chen": 320.0,
+        "intersection": 209.0,
+        "overlap": 0.653125,
+        "jaccard": 0.48491879350348027,
+        "recall_in_dense": 0.653125,
+        "within": 0.8037037037037037,
+        "between": 0.17166666666666666,
+        "overall": 0.367816091954023,
+        "n_edges": 320.0,
+        "density": 0.367816091954023,
+        "mean_out_degree": 10.666666666666666,
+        "mean_in_degree": 10.666666666666666,
+        "reciprocity": 0.85,
+        "undirected_density": 0.42298850574712643,
+        "clustering": 0.8404074702886248,
+        "n_components": 2.0,
+        "largest_component_share": 0.6666666666666666,
+        "out_degree_gini": 0.13083333333333313,
+        "max_out_degree": 18.0,
+        "ari_true": 0.5488888888888889,
+        "modularity_true": 0.2678993383742911
+      },
+      "TVP": {
+        "n_ours": 320.0,
+        "n_chen": 320.0,
+        "intersection": 178.0,
+        "overlap": 0.55625,
+        "jaccard": 0.3852813852813853,
+        "recall_in_dense": 0.55625,
+        "within": 0.6444444444444445,
+        "between": 0.24333333333333335,
+        "overall": 0.367816091954023,
+        "n_edges": 320.0,
+        "density": 0.367816091954023,
+        "mean_out_degree": 10.666666666666666,
+        "mean_in_degree": 10.666666666666666,
+        "reciprocity": 0.54375,
+        "undirected_density": 0.535632183908046,
+        "clustering": 0.701181201306861,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.08708333333333318,
+        "max_out_degree": 15.0,
+        "ari_true": 0.4674095732001979,
+        "modularity_true": 0.08759601392547317
+      },
+      "Chen direct": {
+        "n_ours": 320.0,
+        "n_chen": 320.0,
+        "intersection": 112.0,
+        "overlap": 0.35,
+        "jaccard": 0.21212121212121213,
+        "recall_in_dense": 0.35,
+        "within": 0.3592592592592593,
+        "between": 0.37166666666666665,
+        "overall": 0.367816091954023,
+        "n_edges": 320.0,
+        "density": 0.367816091954023,
+        "mean_out_degree": 10.666666666666666,
+        "mean_in_degree": 10.666666666666666,
+        "reciprocity": 0.4,
+        "undirected_density": 0.5885057471264368,
+        "clustering": 0.6646208671550188,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.6045833333333333,
+        "max_out_degree": 29.0,
+        "ari_true": 0.06209662274840573,
+        "modularity_true": -0.073211669921875
+      },
+      "BCVAR": {
+        "n_ours": 320.0,
+        "n_chen": 320.0,
+        "intersection": 112.0,
+        "overlap": 0.35,
+        "jaccard": 0.21212121212121213,
+        "recall_in_dense": 0.35,
+        "within": 0.3592592592592593,
+        "between": 0.37166666666666665,
+        "overall": 0.367816091954023,
+        "n_edges": 320.0,
+        "density": 0.367816091954023,
+        "mean_out_degree": 10.666666666666666,
+        "mean_in_degree": 10.666666666666666,
+        "reciprocity": 0.375,
+        "undirected_density": 0.5977011494252874,
+        "clustering": 0.6365435356200527,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.3704166666666666,
+        "max_out_degree": 22.0,
+        "ari_true": -0.012126191757552304,
+        "modularity_true": -0.01805473372781063
+      },
+      "Truth": {
+        "within": 0.9222222222222223,
+        "between": 0.11833333333333333,
+        "overall": 0.367816091954023,
+        "n_edges": 320.0,
+        "density": 0.367816091954023,
+        "mean_out_degree": 10.666666666666666,
+        "mean_in_degree": 10.666666666666666,
+        "reciprocity": 0.74375,
+        "undirected_density": 0.46206896551724136,
+        "clustering": 0.5887191539365453,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.08229166666666665,
+        "max_out_degree": 13.0,
+        "ari_true": 1.0
+      }
+    },
+    "step12": {
+      "Truth": {
+        "tci": 71.06401636263328,
+        "radius": 0.740094245614826
+      },
+      "LS spec": {
+        "tci": 68.22917541902737,
+        "radius": 0.7105467545269487
+      },
+      "LS v2": {
+        "tci": 72.72110738137356,
+        "radius": 0.05991560327459246
+      },
+      "TVP": {
+        "tci": 72.71351130199145,
+        "radius": 0.07121233401883797
+      },
+      "Chen direct": {
+        "tci": 68.52735224774378,
+        "radius": 0.716361589690956
+      },
+      "BCVAR": {
+        "tci": 69.2259028925282,
+        "radius": 0.7154793594170962
+      }
+    },
+    "step13": {
+      "LS spec": {
+        "lps_holdout": 124.26078252243292,
+        "rmse": 0.004398704457318196
+      },
+      "LS v2": {
+        "lps_holdout": 120.4876653192226,
+        "rmse": 0.00522399715850372
+      },
+      "TVP": {
+        "lps_holdout": 120.49265488368424,
+        "rmse": 0.005220777846618871
+      },
+      "Chen direct": {
+        "lps_holdout": 124.14010009068075,
+        "rmse": 0.004262081776457758
+      },
+      "BCVAR": {
+        "lps_holdout": 123.59067145757001,
+        "rmse": 0.004289287281803709
+      }
+    }
+  },
+  {
+    "label": "high",
+    "dgp": {
+      "n": 30,
+      "T": 800,
+      "p": 2,
+      "n_blocks": 3,
+      "n_regimes": 6,
+      "density": 0.4,
+      "sparsity": 0.6,
+      "block_ratio": 10.0,
+      "sigma": 0.004,
+      "rho_cap": 0.9,
+      "seed": 7,
+      "transition": "smooth",
+      "b_scale": 0.2,
+      "own_lag": 0.34,
+      "net_lag": 0.12,
+      "burn": 80,
+      "contemp_rho": 0.55,
+      "contemp_bg": 0.04,
+      "realized_mean_density": 0.39666666666666656,
+      "holdout": 80,
+      "design_p_in": 0.9989999999999999,
+      "design_p_out": 0.13044999999999998,
+      "last_within": 1.0,
+      "last_between": 0.13333333333333333
+    },
+    "step11": {
+      "LS spec": {
+        "mae": 0.0038595405591687467,
+        "rmse": 0.004809396724313031
+      },
+      "LS v2": {
+        "mae": 0.003869747785834698,
+        "rmse": 0.004819059421788159
+      },
+      "TVP": {
+        "mae": 0.0038696879814384922,
+        "rmse": 0.0048190242178355195
+      },
+      "Chen FA": {
+        "mae": 0.0038250892831877318,
+        "rmse": 0.004784780056386586
+      },
+      "Chen direct": {
+        "mae": 0.00390678006154989,
+        "rmse": 0.004876693065125415
+      },
+      "BCVAR": {
+        "mae": 0.0038860481389760572,
+        "rmse": 0.004841738141744975
+      },
+      "BCVAR-TVP": {
+        "mae": 0.0038694302619041803,
+        "rmse": 0.004825740239940119
+      },
+      "Random walk": {
+        "mae": 0.004324610117206625,
+        "rmse": 0.005378303969285999
+      }
+    },
+    "step11e": {
+      "LS spec": {
+        "1": {
+          "mae": 0.0032915519917460553,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.003780732356884609,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.0038296449564811847,
+          "n": 60
+        }
+      },
+      "LS v2": {
+        "1": {
+          "mae": 0.003849095517121518,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.0038167141792662938,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003829645676473442,
+          "n": 60
+        }
+      },
+      "TVP": {
+        "1": {
+          "mae": 0.0038486412928559533,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.003816714204514344,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003829645676473442,
+          "n": 60
+        }
+      },
+      "Chen direct": {
+        "1": {
+          "mae": 0.0033652471403497015,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.0038354133958711364,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.0038445894141892474,
+          "n": 60
+        }
+      },
+      "BCVAR": {
+        "1": {
+          "mae": 0.003383404068700859,
+          "n": 60
+        },
+        "5": {
+          "mae": 0.003788551527726453,
+          "n": 60
+        },
+        "21": {
+          "mae": 0.003830511175062929,
+          "n": 60
+        }
+      },
+      "Random walk": {
+        "1": {
+          "mae": 0.003752339657005615,
+          "n": 80
+        },
+        "5": {
+          "mae": 0.004850185304015773,
+          "n": 76
+        },
+        "21": {
+          "mae": 0.005381784946101158,
+          "n": 60
+        }
+      }
+    },
+    "recovery": {
+      "LS spec": {
+        "n_ours": 350.0,
+        "n_chen": 350.0,
+        "intersection": 127.0,
+        "overlap": 0.3628571428571429,
+        "jaccard": 0.22164048865619546,
+        "recall_in_dense": 0.3628571428571429,
+        "within": 0.34814814814814815,
+        "between": 0.4266666666666667,
+        "overall": 0.40229885057471265,
+        "n_edges": 350.0,
+        "density": 0.40229885057471265,
+        "mean_out_degree": 11.666666666666666,
+        "mean_in_degree": 11.666666666666666,
+        "reciprocity": 0.38857142857142857,
+        "undirected_density": 0.6482758620689655,
+        "clustering": 0.7143119603160022,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.32247619047619036,
+        "max_out_degree": 27.0,
+        "ari_true": -0.03111111111111111,
+        "modularity_true": -0.06904205019868213
+      },
+      "LS v2": {
+        "n_ours": 350.0,
+        "n_chen": 350.0,
+        "intersection": 240.0,
+        "overlap": 0.6857142857142857,
+        "jaccard": 0.5217391304347826,
+        "recall_in_dense": 0.6857142857142857,
+        "within": 0.8148148148148148,
+        "between": 0.21666666666666667,
+        "overall": 0.40229885057471265,
+        "n_edges": 350.0,
+        "density": 0.40229885057471265,
+        "mean_out_degree": 11.666666666666666,
+        "mean_in_degree": 11.666666666666666,
+        "reciprocity": 0.6285714285714286,
+        "undirected_density": 0.5517241379310345,
+        "clustering": 0.8173866949377153,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.24152380952380947,
+        "max_out_degree": 19.0,
+        "ari_true": 0.4694208981575909,
+        "modularity_true": 0.16530381944444442
+      },
+      "TVP": {
+        "n_ours": 350.0,
+        "n_chen": 350.0,
+        "intersection": 215.0,
+        "overlap": 0.6142857142857143,
+        "jaccard": 0.44329896907216493,
+        "recall_in_dense": 0.6142857142857143,
+        "within": 0.7407407407407407,
+        "between": 0.25,
+        "overall": 0.40229885057471265,
+        "n_edges": 350.0,
+        "density": 0.40229885057471265,
+        "mean_out_degree": 11.666666666666666,
+        "mean_in_degree": 11.666666666666666,
+        "reciprocity": 0.56,
+        "undirected_density": 0.5793103448275863,
+        "clustering": 0.7301587301587301,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.17409523809523808,
+        "max_out_degree": 18.0,
+        "ari_true": 0.8981832933251542,
+        "modularity_true": 0.16113158226253457
+      },
+      "Chen direct": {
+        "n_ours": 350.0,
+        "n_chen": 350.0,
+        "intersection": 133.0,
+        "overlap": 0.38,
+        "jaccard": 0.2345679012345679,
+        "recall_in_dense": 0.38,
+        "within": 0.40370370370370373,
+        "between": 0.40166666666666667,
+        "overall": 0.40229885057471265,
+        "n_edges": 350.0,
+        "density": 0.40229885057471265,
+        "mean_out_degree": 11.666666666666666,
+        "mean_in_degree": 11.666666666666666,
+        "reciprocity": 0.38857142857142857,
+        "undirected_density": 0.6482758620689655,
+        "clustering": 0.7104726283577014,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.5765714285714285,
+        "max_out_degree": 29.0,
+        "ari_true": 0.15131702754276882,
+        "modularity_true": -0.07519113726673722
+      },
+      "BCVAR": {
+        "n_ours": 350.0,
+        "n_chen": 350.0,
+        "intersection": 147.0,
+        "overlap": 0.42,
+        "jaccard": 0.26582278481012656,
+        "recall_in_dense": 0.42,
+        "within": 0.4148148148148148,
+        "between": 0.39666666666666667,
+        "overall": 0.40229885057471265,
+        "n_edges": 350.0,
+        "density": 0.40229885057471265,
+        "mean_out_degree": 11.666666666666666,
+        "mean_in_degree": 11.666666666666666,
+        "reciprocity": 0.38857142857142857,
+        "undirected_density": 0.6482758620689655,
+        "clustering": 0.6785578747628084,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.30552380952380953,
+        "max_out_degree": 22.0,
+        "ari_true": -0.01293679640591786,
+        "modularity_true": -0.003627835621950597
+      },
+      "Truth": {
+        "within": 1.0,
+        "between": 0.13333333333333333,
+        "overall": 0.40229885057471265,
+        "n_edges": 350.0,
+        "density": 0.40229885057471265,
+        "mean_out_degree": 11.666666666666666,
+        "mean_in_degree": 11.666666666666666,
+        "reciprocity": 0.8171428571428572,
+        "undirected_density": 0.47586206896551725,
+        "clustering": 0.5803205367126351,
+        "n_components": 1.0,
+        "largest_component_share": 1.0,
+        "out_degree_gini": 0.06019047619047613,
+        "max_out_degree": 15.0,
+        "ari_true": 1.0
+      }
+    },
+    "step12": {
+      "Truth": {
+        "tci": 72.50135902359514,
+        "radius": 0.7395011114370912
+      },
+      "LS spec": {
+        "tci": 69.20513027541718,
+        "radius": 0.8012331346365278
+      },
+      "LS v2": {
+        "tci": 74.99998878539098,
+        "radius": 0.07151042647386545
+      },
+      "TVP": {
+        "tci": 74.99730866035492,
+        "radius": 0.07671728347627942
+      },
+      "Chen direct": {
+        "tci": 69.36847217138961,
+        "radius": 0.7877893819484291
+      },
+      "BCVAR": {
+        "tci": 70.88341884003187,
+        "radius": 0.7339707696159867
+      }
+    },
+    "step13": {
+      "LS spec": {
+        "lps_holdout": 125.04091493606586,
+        "rmse": 0.004177885635409983
+      },
+      "LS v2": {
+        "lps_holdout": 121.4827423514151,
+        "rmse": 0.004819529628358012
+      },
+      "TVP": {
+        "lps_holdout": 121.48148167856989,
+        "rmse": 0.004819114293235463
+      },
+      "Chen direct": {
+        "lps_holdout": 124.71656652100685,
+        "rmse": 0.004216105411156208
+      },
+      "BCVAR": {
+        "lps_holdout": 124.04168950240432,
+        "rmse": 0.004321384760391719
+      }
+    }
+  }
+]

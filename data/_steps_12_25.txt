@@ -1,0 +1,713 @@
+Step 12: Dynamic Connectedness and Generalized Impulse Response Analysis
+Step 12 computes time-varying Generalized Impulse Response Functions (GIRFs) and time-varying Diebold-Yilmaz spillover/connectedness tables using the posterior draws from the completed Gibbs chain. Because the model features time-varying autoregressive matrices and an unconstrained innovation covariance Σ, dynamic spillovers are evaluated via the generalized framework to remain invariant to variable ordering.
+1. Time-Varying Companion Form and Moving Average (VMA) Representation
+For any time period t∈1,…,T, define the effective lag-k transition matrix:
+Φk,t≡In+Wt⊙Bk,t∈Rn×n[cite: 1]
+where Bk,t=Uk,tVk,t'.
+Stack the system into its np-dimensional companion state vector Yt=yt-μt',yt-1-μt-1',…,yt-p+1-μt-p+1'':
+Yt=FtYt-1+Et[cite: 1]
+Ft=Φ1,t-1Φ2,t-2…Φp-1,t-p+1Φp,t-pIn0…000In…00⋮⋮⋱⋮⋮00…In0∈Rnp×np, Et=εt0⋮0∈Rnp[cite: 1]
+Under the locally stationary assumption, evaluate the local impulse response matrices Ψt,h∈Rn×n across response horizons h=0,1,…,Hgirf:
+Ψt,h=JFthJ'
+where J=In 0 … 0∈Rn×np, with Ψt,0=In and recursions:
+Ψt,h=k=1minh,pΨt,h-kΦk,t for h≥1[cite: 1]
+2. Generalized Impulse Response Functions (GIRF)
+The Generalized Impulse Response vector at horizon h following a non-orthogonalized shock to variable j at time t is:
+GIRFth,j=Eyt+h∣εj,t=σjj,It-1-Eyt+h∣It-1
+GIRFth,j=1σjjΨt,hΣej∈Rn[cite: 1]
+where σjj=Σjj is the j-th diagonal element of the innovation covariance matrix Σ, and ej∈Rn is a selection vector with 1 in the j-th entry and 0 elsewhere.
+3. Generalized Forecast Error Variance Decomposition (GFEVD)
+Compute the proportion of the H-step-ahead forecast error variance of variable i accounted for by innovations in variable j at time t:
+θij,tgH=σjj-1h=0Hei'Ψt,hΣej2h=0Hei'Ψt,hΣΨt,h'ei[cite: 1]
+Because shocks are non-orthogonal, rows do not automatically sum to 1 (j=1nθij,tgH≠1). Normalize each entry by its row sum:
+θij,tgH=θij,tgHk=1nθik,tgH
+This yields j=1nθij,tgH=1 and i,j=1nθij,tgH=n.
+4. Time-Varying Network Connectedness Measures
+From the normalized matrix ΘtH=θij,tgHn×n, compute dynamic systemic risk and network connectedness metrics at each period t:
+Directional Spillover Received ("FROM others to node i"):
+Ci←∙,tH=j=1,j≠inθij,tgH×100
+Directional Spillover Transmitted ("TO others from node j"):
+C∙←j,tH=i=1,i≠jnθij,tgH×100
+Net Dynamic Spillover (Node i's net impact on the system):
+Ci,tnetH=C∙←i,tH-Ci←∙,tH
+Total Spillover Index (System-wide connectedness):
+StH=i≠jθij,tgHi,j=1nθij,tgH×100=1ni≠jθij,tgH×100
+5. MCMC Estimation Routine
+Across all retained post-burn-in iterations s=1,…,S:
+Retrieve sampled draws Σs, Uk,ts,Vk,ts, and network weights Wt.
+For each selected period t:
+Construct Φk,ts=In+Wt⊙Uk,tsVk,ts'.
+Calculate VMA coefficients Ψt,hs for h=0,…,H.
+Evaluate unnormalized θij,tgsH and normalized θij,tgsH.
+Calculate StsH and Ci,tnetsH.
+Average across draws to produce posterior point estimates and credible bands:
+StH=1Ss=1SStsH
+Step 13: Model Comparison, Predictive Scoring, and Marginal Likelihood Estimation
+Step 13 assesses in-sample goodness-of-fit, out-of-sample predictive accuracy, and marginal likelihood to evaluate lag length p, latent factor ranks (r0,rμ,r,rB), and model specifications (e.g., comparing the full dynamic network VAR model against restricted alternatives like static network VAR or standard TVP-VAR).
+1. Pointwise and Cumulative Log-Predictive Likelihood (LPL)
+The predictive density assesses out-of-sample density forecasts without imposing Gaussian approximations on the parameter posterior distribution:
+One-Step-Ahead Predictive Density:
+For each out-of-sample observation yt+1 given historical data up to time t (It):
+pyt+1∣It=pyt+1∣Θt+1,It pΘt+1∣It dΘt+1[cite: 1]
+where Θt+1=μt+1,Wt+1,Bk,t+1k=1p,Σ denotes the collection of all model parameters and state variables at t+1.
+MCMC Monte Carlo Evaluation:
+Using S posterior draws generated via the forward prediction mechanism (from Step 11):
+pyt+1∣It=1Ss=1S2π-n2|Σs|​-12exp-12εt+1s'Σs-1εt+1s[cite: 1]
+where the one-step-ahead residual is:
+εt+1s=yt+1-μt+1s-k=1pIn+Wt+1-ks⊙Bk,t+1-ksyt+1-k-μt+1-ks[cite: 1]
+Cumulative Log-Predictive Score (LPS):
+Over an evaluation testing period from t=Ttrain+1 to T:
+LPS=t=TtrainT-1logpyt+1∣It
+Higher values indicate superior density calibration and out-of-sample forecast accuracy.
+2. Deviance Information Criterion (DIC)
+To measure in-sample fit penalized for effective model complexity across large state-space dimensions:
+Deviance Function:
+DΘ=-2t=p+1Tlogpyt∣Θt,It-1[cite: 1]
+DΘ=T-pnlog2π+T-plog|Σ|+t=p+1Tεt'Σ-1εt[cite: 1]
+DIC Computation:
+Compute the posterior mean deviance across all retained MCMC samples s=1,…,S:
+D=1Ss=1SDΘs
+Compute the deviance at the posterior mean of the states/parameters Θ=1Ss=1SΘs:
+DΘ=D1Ss=1SΘs
+Calculate the effective number of parameters (pD):
+pD=D-DΘ
+Compute DIC:
+DIC=D+pD=2D-DΘ
+Lower DIC indicates a more parsimonious balance between likelihood fit and parameter dimension.
+3. Network Link Predictive Accuracy (AUC / Brier Score)
+Evaluate the performance of the probit dynamic network latent space formulation (ui'vj+ui,t'vj,t) against realized edges ai,j,t:
+Estimated Link Probability: For each dyad i≠j at time t, the posterior edge connection probability is:
+πi,j,t=1Ss=1SΦuis'vjs+ui,ts'vj,ts[cite: 1]
+Network Brier Score:
+BSnet=1T⋅nn-1t=1Ti≠jπi,j,t-ai,j,t2[cite: 1]
+Area Under the ROC Curve (AUC-ROC): Treat πi,j,t as classification scores for binary outcomes ai,j,t∈0,1 across all time slices to evaluate dynamic link prediction precision.
+4. Marginal Likelihood via Chib's Candidate Method
+To calculate Bayes factors between competing model architectures M1 and M2:
+mY=pY∣Θ*pΘ*pΘ*∣Y
+evaluated at a high-density point Θ*=Θ1*,…,ΘK* (typically the posterior mean or median):
+Likelihood pY∣Θ*: Evaluated directly via the state-space prediction error decomposition from the Kalman filter.
+Prior Density pΘ*: Evaluated directly as the product of prior densities specified in Step 0 and Step 9.
+Posterior Ordinates $p(\Theta^ \mid Y)$:* Factorized via the chain rule of probability matching the Gibbs blocks:
+pΘ*∣Y=pΣ*∣Yjpτj2*∣Y,…pF*∣Y,……[cite: 1]
+Each ordinate is estimated by running reduced Gibbs chains where subsets of parameters are fixed at their benchmark values Θ*.
+Step 14: Dynamic Network Centrality, Topology Dynamics, and Community Detection
+Step 14 extracts structural network properties, node-level influence metrics, and time-varying community partitions from the posterior distribution of the network latent space layer (μi,j,t=ui'vj+ui,t'vj,t) and the continuous connection probabilities across time t=1,…,T.
+1. Estimated Edge Probabilities and Expected Network Structure
+Rather than relying solely on the noisy binary observations ai,j,t, continuous network dynamics are analyzed through the posterior connection probability matrix Πt=πi,j,tn×n:
+πi,j,t≡Pai,j,t=1∣ui,vj,ui,t,vj,t=Φui'vj+ui,t'vj,t for i≠j[cite: 1]
+with diagonal entries πi,i,t=0.
+For each MCMC draw s=1,…,S, compute the probability matrix Πts, which serves as a weighted, denoised directed graph representation.
+2. Time-Varying Node Centrality Metrics
+Evaluate each node's evolving systemic importance within the financial network at time t:
+Dynamic In-Degree and Out-Degree Centrality:
+Expected out-degree (activity / spreading influence):
+di,touts=j=1nπi,j,ts[cite: 1]
+Expected in-degree (vulnerability / exposure):
+di,tins=j=1nπj,i,ts
+Dynamic PageRank Centrality:
+Reflects recursive network authority. Let damping factor α∈0,1 (typically α=0.85):
+pts=αΠts'pts+1-αn1n
+where Πts is the column-stochastic or row-stochastic normalized transition matrix derived from Πts. The vector pts∈Rn measures time-t node significance.
+Dynamic Hub and Authority Scores (HITS):
+Authority vector xts∈Rn and Hub vector yts∈Rn are obtained as the principal eigenvectors:
+Πts'Πtsxts=κxxts, ΠtsΠts'yts=κyyts
+Nodes with high hub scores correspond to entities whose movements drive the network, while high authority scores identify receiver entities that aggregate shocks.
+3. Latent Space Distance and Clustering (Community Detection)
+The positions xi,t=uiui,t∈R2r and yj,t=vjvj,t∈R2r embed nodes into an unobserved Euclidean metric space:
+Pairwise Node Distance:
+Define the latent affinity distance between node i and node j at time t:
+Dij,ts=‖xi,ts-yj,ts‖​2
+Entities situated close together in latent space share similar transmission and reception profiles across the financial system.
+Dynamic Spectral Clustering / Community Assignment:
+Form the symmetric affinity matrix:
+Ats=12Πts+Πts'
+Compute the normalized graph Laplacian:
+Lts=In-Dts-1/2AtsDts-1/2
+where Dts=diagj=1nAij,ts.
+Extract the eigenvectors corresponding to the K smallest non-zero eigenvalues of Lts to yield an n×K spectral feature matrix.
+Apply k-means clustering to partition the n entities into K disjoint clusters C1,ts,…,CK,ts, identifying time-varying financial sectors, risk cliques, or core-periphery blocks.
+4. MCMC Aggregation and Summary Statistics
+For each horizon t=1,…,T:
+Compute point estimates of the network connection probabilities:
+Πt=1Ss=1SΠts
+Compute the posterior mean and equal-tailed credible intervals for centrality indices:
+di,tout=1Ss=1Sdi,touts, pi,t=1Ss=1Spi,ts
+Compute community co-membership matrices:
+Mij,t=1Ss=1SIi and j belong to the same cluster at time t
+providing an edge-level probability of shared systemic vulnerability.
+Step 15: Structural Shock Identification, Counterfactual Analysis, and Policy Simulation
+Step 15 details the structural economic identification of the system innovations εt, the mapping from reduced-form shocks to structural primitive shocks, and the evaluation of historical counterfactual scenarios (e.g., assessing the hypothetical trajectory of the economy if a specific network link or systemic entity's shock had been shut down).
+1. Structural Identification Scheme for Innovation Covariance Matrix (Σ)
+Recall the reduced-form VAR observation equation:
+yt=μt+k=1pΦk,t-kyt-k-μt-k+εt, εt∼Nn0,Σ[cite: 1]
+where Φk,t-k=In+Wt-k⊙Bk,t-k.
+Let ηt∼Nn0,In denote the vector of mutually uncorrelated, unit-variance structural shocks:
+εt=A0-1ηt⟹Σ=A0-1A0-1'[cite: 1]
+where A0∈Rn×n represents the contemporaneous structural interaction matrix.
+To identify A0 from the reduced-form posterior draws of Σs:
+Cholesky (Recursive) Identification:
+Perform a lower-triangular Cholesky factorization of the draw:
+Σs=PsPs'⟹A0-1s=Ps[cite: 1]
+where Ps is lower-triangular with positive diagonal elements, imposing a causal ordering from variable 1 to variable n.
+Sign-Restricted Structural Identification:
+Compute the Cholesky factor Ps.
+Draw an independent random n×n matrix X with entries Xij∼N0,1 and compute its QR decomposition:
+X=QR
+where Q is an orthogonal matrix (QQ'=In) with positive diagonal signs on R.
+Form candidate impact matrix:
+A0-1=PsQ
+Check theoretical sign restrictions on the impulse response horizons Ψt,hsA0-1 (e.g., monetary contraction raising interest rates and lowering inflation). If restrictions hold, retain the draw; otherwise, propose a new Q.
+2. Structural Impulse Response Functions (SIRF)
+Using the identified structural impact matrix A0-1s, the Structural Impulse Response Function at horizon h∈0,1,…,H for time period t is:
+Ξt,hs=Ψt,hsA0-1s∈Rn×n
+where Ψt,hs is the time-t local VMA coefficient matrix computed via the companion matrix recursions:
+Ψt,0s=In, Ψt,hs=k=1minh,pΨt,h-ksΦk,ts h≥1[cite: 1]
+The i,j-th entry of Ξt,hs represents the structural response of variable i at horizon h to a one-standard-deviation structural shock in primitive shock j at time t.
+3. Historical Decomposition of Realized Series
+Decompose the historical deviations of the series yt-μt into initial condition components and cumulative contributions from each specific structural shock j∈1,…,n:
+yt-μt=h=0t-1Ψt,hεt-h+Jτ=1tFτY0[cite: 1]
+Expressing reduced-form innovations in terms of structural shocks εt=A0-1ηt:
+yt-μt=j=1nh=0t-1Ψt,hA0-1:,jηj,t-h+Initial Conditionst[cite: 1]
+This isolates what fraction of historical market movements during any period (e.g., liquidity crunches, market stress) was driven by shock j.
+4. Counterfactual Policy Scenarios & Network Severing
+Evaluate hypothetical interventions by adjusting structural shocks or modifying the network coupling matrices:
+Scenario A: Muting Structural Shocks (No Stress / No Contagion Shock):
+To assess what the path of node i would have been without adverse shocks originating from entity j over window t1,t2:
+For each t∈t1,t2, set ηj,tcf=0, while keeping all other shocks ηl,t (l≠j) identical to their historical posterior draws.
+Re-compute counterfactual reduced-form innovations:
+εtcf=A0-1ηtcf[cite: 1]
+Propagate forward dynamically:
+ytcf=μt+k=1pIn+Wt-k⊙Bk,t-kyt-kcf-μt-k+εtcf[cite: 1]
+Scenario B: Network Link Severing / Firewall Intervention:
+To evaluate macroprudential policies that eliminate spillover exposures between node i and node j:
+Alter the network adjacency: set ai,j,tcf=0 for t≥tpolicy.
+Recompute the row-normalized spatial weights Wtcf using the revised out-degrees di,tcf:
+wi,j,tcf=ai,j,tcfdi,tcfif di,tcf>00if di,tcf=0[cite: 1]
+Evaluate the simulated forward response under Wtcf to quantify the dampening effect on systemic shock transmission.
+5. MCMC Estimation of Counterfactual Effects
+For each posterior draw s=1,…,S:
+Calculate the structural innovations: ηts=A0sεts for t=1,…,T.
+Evaluate the counterfactual path ytcfs under the specified intervention scenario.
+Compute the counterfactual treatment differential:
+Δyts=yts-ytcfs
+Aggregate Δyts across draws to form posterior medians and 95% Bayesian credible intervals, quantifying the net systemic benefit of the policy intervention.
+Step 16: Convergence Diagnostics, Autocorrelation Analysis, and Efficiency Benchmarks
+Step 16 provides the formal MCMC convergence assessment, mixing diagnostics, and numerical precision metrics for all estimated parameters, latent dynamic states, and time-varying network quantities across the retained Gibbs sampling chain.
+1. Potential Scale Reduction Factor (Gelman-Rubin Diagnostic R)
+Run M≥3 independent parallel Markov chains starting from overdispersed initial values for S post-burn-in iterations. For any scalar target θ (e.g., hypervariances τ2, loading entries Fij, covariance elements Σij, or states λi,t,Bk,tij):
+Between-Chain Variance (B):
+B=SM-1m=1Mθm∙-θ∙∙2
+where θm∙=1Ss=1Sθms is the mean of chain m, and θ∙∙=1Mm=1Mθm∙ is the grand mean.
+Within-Chain Variance (W):
+W=1MS-1m=1Ms=1Sθms-θm∙2
+Marginal Posterior Variance Estimate (Varθ):
+Varθ=S-1SW+1SB
+Scale Reduction Factor (R):
+R=VarθW
+Values of R≤1.05 across all sampled dimensions indicate adequate convergence and inter-chain stationarity.
+2. Effective Sample Size (ESS) and Inefficiency Factors (IF)
+Because dynamic state transitions (FFBS) and variance parameters often exhibit serial dependence across MCMC iterations, mixing performance is evaluated using autocorrelation times:
+Autocovariance at Lag k:
+γk=1Ss=1S-kθs-θθs+k-θ
+ρk=γkγ0
+Inefficiency Factor (IF or Integrated Autocorrelation Time τint):
+Using a Parzen or Tukey-Hanning taper window with bandwidth cutoff Kcut:
+IFθ=1+2k=1Kcutwkρk
+Low values (IF<20) indicate rapid mixing; higher values reveal persistent autocorrelation typical in dynamic latent trajectory sampling.
+Effective Sample Size (ESS):
+ESSθ=SIFθ=S1+2k=1Kcutwkρk
+A target of ESS≥400 per parameter is typically enforced for reliable 95% credible interval coverage.
+3. Numerical Standard Errors (NSE) via Batch Means
+Quantify the Monte Carlo sampling variation around the estimated posterior expectations θ=Eθ∣Y:
+Partition the S samples into Bbatch contiguous, non-overlapping batches of length Lbatch=S/Bbatch (with Lbatch sufficiently large so batch means are approximately uncorrelated):
+θb=1Lbatchs=b-1Lbatch+1bLbatchθs, b=1,…,Bbatch
+Compute the Numerical Standard Error:
+NSEθ=1BbatchBbatch-1b=1Bbatchθb-θ2
+The ratio NSEθ/stdθ verifies whether simulation noise is negligible relative to posterior posterior parameter uncertainty.
+4. Geweke Spectral Diagnostic for Chain Stationarity
+Assess within-chain drift by testing whether the mean of the early fraction of the chain matches the mean of the late fraction:
+Let θA denote the mean over the first SA=0.10S iterations, and θB denote the mean over the last SB=0.50S iterations.
+Compute spectral density estimates at zero frequency for each segment, SA0 and SB0:
+ZGeweke=θA-θBSA0SA+SB0SB
+Under the null hypothesis that the chain reached its stationary target distribution after burn-in, ZGeweke→dN0,1. Rejection rates across parameter dimensions should align with the nominal false-positive rate α=0.05.
+5. Diagnostics Pipeline Protocol
+Chain Run: Run M=3 chains for Ntotal=20,000 iterations each, discarding the initial Nburn=5,000 iterations as burn-in.
+Global Trace Inspection: Generate trace plots for hypervariances τλ2,τλ2,τF2,τU2,τV2,τu2,τv2 and sample diagonals of Σ to check for path stability and label sticking.
+Automated Flagging: Compute R, ESS, and Geweke Z-scores across all T points of the dynamic paths μt,Bk,t,Wt.
+Thinning Decision: If memory constraints exist or IF exceeds threshold bounds, apply systematic thinning (e.g., retain every 5th or 10th draw) to store uncorrelated samples for subsequent structural and policy analyses.
+Step 17: Implementation Architecture, Computational Optimization, and Software Pipeline
+Step 17 establishes the computational pipeline, low-level linear algebra accelerations, memory management schemes, and parallelization structures required to execute the complete Gibbs sampler across high-dimensional time series (n≫1) and long sampling horizons (T).
+1. Dimensionality Profiling and Computational Bottlenecks
+At each MCMC iteration, the sampler processes three primary high-dimensional computational blocks:
+Network Latent Probit Updates (Steps 1–3): On2T truncated normal draws and 2n independent Kalman filter/FFBS updates of dimension r.
+Dynamic Intercept Factor Paths (Step 4): Kalman filtering on dimension r0+rμ and an n-dimensional dynamic matrix update on nrμ states.
+Dynamic Low-Rank Lag Matrices (Step 6): 2p separate FFBS passes across state dimensions of size nrB with measurement dimension n.
+2. Algorithmic Optimizations for State-Space Recursions (FFBS)
+Direct implementation of textbook Kalman updates incurs Om3 complexity per time step, where m is the state dimension. The following structural transformations reduce this burden:
+Information Filter Formulation for Network Nodes (Step 3): For each node i, the measurement error covariance is In-1. The update equation in information form avoids inverting n-1×n-1 observation matrices:
+Pi,t|t-1=Pi,t|t-1-1+Hi,tu'Hi,tu=Pi,t|t-1-1+j≠ivj,tvj,t'[cite: 1]
+Because r≪n, inverting Pi,t|t-1∈Rr×r requires only Or3 operations instead of an On-13 observation inversion.
+Low-Rank Measurement Inversion for VAR Blocks (Step 6): The measurement matrix Ht,kU∈Rn×nrB maps into whitened noise εt∼Nn0,In. The innovation covariance St,kU=Ht,kUCt|t-1UHt,kU'+In is an n×n matrix.
+Factorize Ht,kU using sparse block indexing: each row i contains non-zero entries only in block column i, turning the computation of Ht,kUCHt,kU' into n decoupled vector outer products rather than a full matrix product.
+Solve the Kalman gain Kt,kU=Ct|t-1UHt,kU'St,kU-1 via Cholesky decomposition of St,kU (LSLS'=St,kU) through forward and back-substitution without explicit matrix inversion.
+3. Memory Management and Array Layout
+Contiguous Memory Buffers:
+Store states and observations in column-major format (Fortran-contiguous) to optimize cache hit rates during time-ordered FFBS recursions (t=1…T).
+Pre-allocate static working memory for temporary Kalman matrices (mt|t,Ct|t,St,Kt) once prior to the Markov chain loop, overwriting inplace to avoid dynamic heap allocations inside the MCMC iterations.
+Pre-computed Adjacency Matrices and Degrees:
+Because the binary adjacency series At and normalized weights Wt are determined prior to or updated inside the network layer, cache the sparse row representations of Wt (CSR format) to accelerate the Hadamard matrix product operations Wt-k⊙Bk,t-kxt,k.
+4. Parallelization Hierarchy (Multi-Core and GPU Accel)
+The Gibbs scheme allows nested shared-memory (OpenMP / Multiprocessing) and SIMD parallelization across multiple granularities:
+Node-Level Embarrassing Parallelism:
+In Step 1, the truncated normal draws zi,j,t are mutually independent across all dyads i,j and time t. This step distributes across all available CPU threads or compiles to a single GPU vectorized kernel.
+In Step 2, the conjugate posteriors for ui (i=1,…,n) and vj (j=1,…,n) depend only on aggregate sums and can be solved concurrently across threads.
+In Step 3, the forward filter and backward simulation passes for ui,tt=1T across i=1,…,n are conditionally independent given vj,t and can be mapped across parallel execution threads.
+Lag-Level Vectorization:
+In Step 8, the hypervariance updates depend on sums of squared Frobenius norms that can be computed via parallel BLAS-1 reduction routines (dnrm2 / ddot).
+5. Execution Pipeline Pseudocode
+Plaintext
+Initialize:
+Hyperparameters: a0, b0, sigma_F^2, sigma_u^2, sigma_v^2, c0, nu0, S0
+States (s=0): lambda_t, lambda_tilde_t, F_t, U_k,t, V_k,t, u_i,t, v_j,t, Sigma
+Precompute: W_t from A_t for t = 1 ... T
+For iteration s = 1 to (N_burn + N_retained):
+1. Dyad Layer:
+Parallel For (i, j, t) where i != j:
+z_{i,j,t} ~ TruncatedNormal(u_i'v_j + u_{i,t}'v_{j,t}, 1, a_{i,j,t})
+2. Static Network Embeddings:
+Parallel For i = 1 ... n: Sample u_i ~ Gaussian(Omega_u_i, m_u_i)
+Parallel For j = 1 ... n: Sample v_j ~ Gaussian(Omega_v_j, m_v_j)
+3. Dynamic Network Paths:
+Parallel For i = 1 ... n: Run FFBS for {u_{i,t}}_{t=1}^T
+Parallel For j = 1 ... n: Run FFBS for {v_{j,t}}_{t=1}^T
+4. Dynamic Intercept:
+Construct y*_t = y_t - sum_k (I + W_{t-k} (x) B_{k,t-k}) x_{t-k}
+Run FFBS for joint factors {theta_t = [lambda_t', lambda_tilde_t']'}_{t=1}^T
+Run FFBS for dynamic loadings {vec(F_t)}_{t=1}^T
+Update mu_t = F lambda_t + F_t lambda_tilde_t
+5. Static Loadings:
+Sample vec(F) ~ Gaussian(Omega_F, m_F) via Kronecker/Cholesky solver
+6. Dynamic Lag Matrices:
+For k = 1 ... p:
+Construct partial residuals e^{(-k)}_t
+Run FFBS for {U_{k,t}}_{t=1}^T
+Run FFBS for {V_{k,t}}_{t=1}^T
+Reconstruct B_{k,t} = U_{k,t} V'_{k,t}
+7. Innovation Covariance:
+Compute residuals epsilon_t for t = 1 ... T
+Sample Sigma ~ InvWishart(nu_0 + T, S_0 + sum_t epsilon_t epsilon_t')
+8. Variance Parameters:
+Sample tau_lambda^2, tau_tilde_lambda^2, tau_F^2, tau_U^2, tau_V^2, tau_u^2, tau_v^2 ~ InvGamma(...)
+9. Hyper-Scale Parameters (if sampled):
+Sample sigma_F^2, sigma_u^2, sigma_v^2, c_0 ~ InvGamma(...)
+10. Post-Processing & Normalization:
+Apply QR / SVD transformations to ensure subspace identification
+If s > N_burn:
+Store or stream retained posterior draws for Steps 11–16
+Step 18: Dynamic System Stability, Local Stationarity Verification, and Shrinkage Priors
+Step 18 establishes the runtime stability monitoring of the dynamic system, verifies the local stationarity conditions of the network-coupled autoregressive process across time t=1,…,T, and incorporates global-local shrinkage priors (such as the Horseshoe or Dirichlet-Laplace) for high-dimensional edge and factor selection.
+1. Verification of Local Stationarity and Dynamic Stability
+At every time period t∈1,…,T, the network VAR system has the effective lag-k transition matrix:
+Φk,t=In+Wt⊙Bk,t∈Rn×n[cite: 1]
+where Bk,t=Uk,tVk,t'.
+Companion Matrix Formulation:
+Assemble the np×np companion matrix Ft:
+Ft=Φ1,tΦ2,t…Φp-1,tΦp,tIn0…000In…00⋮⋮⋱⋮⋮00…In0∈Rnp×np[cite: 1]
+Local Spectral Radius Condition:
+Compute the spectral radius ρFt=maxi|κiFt|, where κiFti=1np are the eigenvalues of Ft.
+Stationarity Criterion: For local stationarity to hold at time t, the spectral radius must remain strictly within the unit circle:
+ρFt<1 ∀ t∈1,…,T
+MCMC Rejection / Truncation Enforcement: If a proposed backward simulation draw of Uk,t,Vk,tt=1T violates ρFt≤ρmax<1 (typically ρmax=0.99 or 0.995), reject the draw and resample via backward simulation, or rescale the dynamic components Uk,t←ctUk,t with ct=ρmaxρFt to guarantee system non-explosiveness.
+2. Global-Local Shrinkage Formulations on Low-Rank Loadings (Uk,t,Vk,t)
+When n is large, unrestrained random walk increments in Step 6 can cause overfitting or high variance in uncoupled network sectors. Placing hierarchical shrinkage on the dynamic loading increments Ξk,t and Zk,t regularizes irrelevant latent dimensions:
+Hierarchical Horseshoe Representation:
+For each lag k and factor dimension l∈1,…,rB:
+Ξk,ti,l∼N0,τU2⋅λU,k,l2⋅ωU,i,l2[cite: 1]
+where:
+τU: Global shrinkage parameter across all lags and entities.
+λU,k,l∼C+0,1: Component-specific shrinkage governing the l-th low-rank channel of lag k.
+ωU,i,l∼C+0,1: Local shrinkage parameter regulating entity i.
+Auxiliary Parameter Gibbs Updating:
+Using the standard Makalic-Schmidt auxiliary variable representation of the half-Cauchy prior (x∼C+0,1⟺x2∣a∼IG1/2,1/a with a∼IG1/2,1):
+Sample local precision scale ωU,i,l2∼IG1, 1νi,l+t=1TΞk,ti,l22τU2λU,k,l2.
+Sample mixing variable νi,l∼IG1, 1+1ωU,i,l2.
+Sample factor-level scale λU,k,l2∼IGnT+12, 1ζk,l+i=1nt=1TΞk,ti,l22τU2ωU,i,l2.
+Sample mixing variable ζk,l∼IG1, 1+1λU,k,l2.
+This automatically prunes overspecified rank dimensions (rB) down to their effective rank without manual tuning.
+3. Network Sparsity and Dynamic Edge Selection Thresholding
+In empirical financial networks, dense non-zero probit probabilities πi,j,t=Φui'vj+ui,t'vj,t can introduce minor background noise into Wt. Step 18 introduces hard or soft thresholding to isolate genuine economic interactions:
+Posterior Edge Hard-Thresholding:
+Define the thresholded indicator ai,j,t:
+ai,j,t=1if πi,j,t≥γthresh0if πi,j,t<γthresh[cite: 1]
+where γthresh∈0.5,0.95 is chosen based on false discovery rate (FDR) control (e.g., the Benjamini-Hochberg procedure over the nn-1 edges).
+Reconstructed Sparse Spatial Weight Matrix:
+wi,j,t=ai,j,tj=1nai,j,tif j=1nai,j,t>00otherwise[cite: 1]
+Updating Wt with Wt zeros out spurious linkages while preserving strong systemic dependencies in financial contagion modeling.
+Step 19: Time-Varying Network Volatility, Heteroskedasticity, and Heavy-Tailed Innovations
+Step 19 extends the baseline constant-covariance structure εt∼Nn0,Σ to accommodate conditional heteroskedasticity, common market volatility factors, and fat-tailed shocks across financial market crashes and stress periods.
+1. Latent Stochastic Factor Volatility and Scale Mixtures
+The baseline model assumes homoskedastic Gaussian innovation errors εt∼Nn0,Σ. In empirical financial networks, residual volatility exhibits pronounced clustering and fat tails. Innovation vectors are extended into a scale-mixture dynamic factor structure:
+εt=expht2Λε1/2εt, εt∼Nn0,Σ[cite: 1]
+where:
+ht∈R: Common latent log-volatility factor capturing market-wide macro shocks.
+Λε=diagκ1,t,…,κn,t: Entity-specific scale mixtures capturing idiosyncratic kurtosis.
+Log-Volatility Transition Dynamics:
+ht=μh+ϕhht-1-μh+σhζth, ζth∼iidN0,1
+with |ϕh|<1, σh2∼IGah,bh, and μh∼N0,vh2.
+Heavy-Tailed Scale Mixture (Student-t Innovations):
+Each node's idiosyncratic scaling variable follows an independent Inverse-Gamma distribution:
+κi,t∼iidIGνκ2, νκ2
+which marginally integrates to multivariate Student-t errors with degrees of freedom νκ.
+2. Sampling Idiosyncratic Scale Variables (κi,t)
+Let et=yt-μt-k=1pIn+Wt-k⊙Bk,t-kyt-k-μt-k denote the current vector of model residuals. Whitening the residuals with respect to the common volatility ht gives:
+et*=exp-ht2et[cite: 1]
+Under the diagonal conditional structure of Λε:
+The full conditional posterior for each scale parameter κi,t for i=1,…,n and t=1,…,T is conditionally conjugate Inverse-Gamma:
+κi,t∣ei,t*,Σ,νκ∼IGνκ+12, νκ+ei,t*'Σ-1iiei,t*2[cite: 1]
+Sample standard Gamma variates to evaluate the draws directly:
+gi,t∼Gammaνκ+12,1, κi,t=νκ+Σ-1iiei,t*22gi,t[cite: 1]
+3. Sampling the Latent Common Log-Volatility Path (htt=1T)
+Condition on residuals et, scales Λε, and innovation matrix Σ. Define the scalar quadratic form:
+st2=et'Λε1/2ΣΛε1/2-1et[cite: 1]
+The observation likelihood for ht is non-linear:
+pet∣ht,Σ,Λε∝exp-n2ht-12st2exp-ht[cite: 1]
+Transform to linear form via Kim, Shephard, and Chib (1998) auxiliary mixture sampling:
+Define linear observation:
+yt**≡logst2=ht+logξt2[cite: 1]
+where ξt2∼χn2.
+Approximate the distribution of logχn2 by a 10-component Gaussian mixture:
+plogξt2≈m=110qmNmm, vm2
+Sample Discrete Mixture Indicators (st∈1,…,10):
+pst=m∣yt**,ht∝qm1vmexp-yt**-ht-mm22vm2
+Sample Full Latent Volatility Path (htt=1T via FFBS):
+Conditional on mixture allocations stt=1T, the state-space model is linear and Gaussian:
+Observation equation:
+yt**-mst=ht+ϵth, ϵth∼N0,vst2
+Transition equation:
+ht-μh=ϕhht-1-μh+ζth, ζth∼N0,σh2
+Sample htt=1T using the standard FFBS recursions defined in Step 3 and Step 4.
+4. Adjustments to State-Space Filtering Steps (Steps 4, 6, and 7)
+When conditional heteroskedasticity and heavy-tailed mixtures are present, the effective time-varying error covariance matrix becomes:
+Σt≡exphtΛε1/2ΣΛε1/2[cite: 1]
+Step 4 (Dynamic Intercept FFBS): Replace time-invariant Σ in the Kalman update with Σt:
+Stθ=GtCt|t-1θGt'+Σt[cite: 1]
+Step 6 (Dynamic Lag Coefficient FFBS): Update the whitening transformation matrix to be time-varying:
+et-k=Σt-1/2et-k[cite: 1]
+normalizing the observation disturbance variance to In for every period t.
+Step 7 (Inverse-Wishart Update for Σ): Compute standardized residuals:
+εt=exp-ht2Λε-1/2εt[cite: 1]
+Sample the baseline scale matrix draw:
+Σ∣…∼IWν0+T, S0+t=1Tεtεt'[cite: 1]
+5. Post-Processing Volatility-Adjusted Spillover Indices
+In the generalized impulse response functions (Step 12), the contemporaneous shock transmission is scaled by the dynamic volatility regime:
+GIRFth,j=1ΣtjjΨt,hΣtej[cite: 1]
+This captures the widening of systemic network contagion during high-volatility episodes without distorting underlying structural connectivity parameters.
+Step 20: Missing Data Imputation, Asynchronous Observations, and Kalman Smoothing Interpolation
+Step 20 addresses incomplete observation histories, mixed-frequency releases, trading holidays, and randomly unobserved network dyads or macroeconomic time series (yt,At) by incorporating exact conditional data-augmentation within the Gibbs sampling loop.
+1. Latent Network Dyad Imputation (Missing Adjacency Entries)
+In empirical settings, network linkages between certain node pairs i,j may be unobserved at time t (e.g., untracked exposures or reporting blackouts). Let Ot⊂i,j:i≠j denote the set of observed dyads, and Mt denote the set of missing dyads at time t.
+Conditional Distribution of Missing Latent Variables (zi,j,t for i,j∈Mt): Unlike observed entries where zi,j,t is truncated normal (Step 1), missing entries have unconstrained Gaussian posteriors governed entirely by their latent inner product:
+zi,j,t∣i,j∈Mt,ui,vj,ui,t,vj,t∼Nui'vj+ui,t'vj,t, 1[cite: 1]
+Conditional Simulation of Missing Binary Edges (ai,j,t): Given the imputed continuous intensity zi,j,t, draw the discrete edge state:
+ai,j,t=Izi,j,t>0[cite: 1]
+Dynamic Updating of Normalized Weight Matrix (Wt): Once all missing edges ai,j,t are imputed, update the out-degrees and row-normalized spatial weights inplace before proceeding to the autoregressive lag updates:
+di,t=j=1nai,j,t[cite: 1]
+wi,j,t=ai,j,tdi,tif di,t>00if di,t=0[cite: 1]
+2. Time Series Missing Value Imputation (yt)
+Let the n-dimensional time series vector at time t partition into observed and unobserved components:
+yt=ytobsytmis∈Rn
+where ytobs∈Rntobs and ytmis∈Rntmis with ntobs+ntmis=n.
+Direct Multivariate Normal Conditional Draw: From the VAR equation, the conditional mean of yt given states and past values is:
+μy,t=μt+k=1pIn+Wt-k⊙Bk,t-kyt-k-μt-k[cite: 1]
+Conditioned on the current innovation covariance Σ, yt∼Nnμy,t,Σ.
+Partition the mean vector and covariance matrix accordingly:
+μy,t=μy,tobsμy,tmis, Σ=Σobs, obsΣobs, misΣmis, obsΣmis, mis
+The full conditional posterior for the missing vector ytmis is:
+ytmis∣ytobs,μy,t,Σ∼Nntmisμmis|obs, Σmis|obs
+where:
+μmis|obs=μy,tmis+Σmis, obsΣobs, obs-1ytobs-μy,tobs
+Σmis|obs=Σmis, mis-Σmis, obsΣobs, obs-1Σobs, mis
+3. State-Space Kalman Filtering with Missing Observations (Modifications to Steps 4 and 6)
+When yt contains missing elements, the observation equations in the Kalman filtering recursions are modified dynamically using time-varying selection matrices:
+Selection Matrix Setup:
+Define an ntobs×n selection matrix St by deleting the rows of In corresponding to unobserved indices in yt at time t.
+The filtered observation model transforms to:
+yt*,obs=Styt*=StGtθt+εtobs, εtobs∼Nntobs0,StΣSt'[cite: 1]
+Kalman Filter Update Step Under Missing Data:
+If all variables are missing at period t (ntobs=0):
+mt|t=mt|t-1, Ct|t=Ct|t-1
+If a subset is observed (ntobs>0):
+vt=yt*,obs-StGtmt|t-1
+St=StGtCt|t-1StGt'+StΣSt'[cite: 1]
+Kt=Ct|t-1StGt'St-1
+mt|t=mt|t-1+Ktvt
+Ct|t=Ct|t-1-KtStGtCt|t-1
+This allows the backward simulation recursions across θtt=1T, Ftt=1T, and Uk,t,Vk,tt=1T to operate without data truncation.
+4. Gibbs Sampling Loop Integration
+At the beginning of iteration s, identify missing dyads Mt across t=1,…,T:
+Draw untruncated normals zi,j,ts.
+Set binary flags ai,j,ts and recompute row-normalized Wts.
+For periods with missing macroeconomic entries ytmis:
+Draw ytmiss from its conditional Gaussian slice.
+Pass the fully completed ytst=1T and Wtst=1T forward into the standard MCMC updating sequence (Steps 2 through 10).
+Step 21: Bayesian Network Clustering, Stochastic Block Modeling (SBM), and Latent Factor Shrinkage
+Step 21 extends the continuous latent network space (μi,j,t=ui'vj+ui,t'vj,t) by endowing the static and dynamic embeddings with a discrete mixture / Stochastic Block Model (SBM) prior. This infers explicit latent communities, groups nodes with common risk profiles, and provides automated rank shrinkage across the spatial latent dimension r.
+1. Hierarchical Mixture / Dynamic Stochastic Block Model (SBM) Formulation
+Rather than assuming unimodal standard normal priors on static latent vectors ui,vj∈Rr, nodes are assigned to one of K unobserved latent communities:
+Let ci∈1,…,K denote the discrete community indicator for node i∈1,…,n.
+Prior community mixing proportions:
+π=π1,…,πK'∼Dirichletα1,…,αK, typically αk=α0K
+Static node embeddings conditioned on community allocation:
+ui∣ci=k∼Nruk, σu,k2Ir, vi∣ci=k∼Nrvk, σv,k2Ir
+where uk,vk∈Rr represent cluster centroid positions in latent Euclidean space, assigned conjugate priors uk,vk∼Nr0,σ02Ir.
+2. Sampling Discrete Community Allocations (ci)
+Condition on latent network intensities zi,j,t, static positions ui,vj, dynamic paths ui,t,vj,t, mixing weights π, and cluster centroids:
+For each entity i∈1,…,n, sample ci from a categorical distribution over 1,…,K:
+Pci=k∣…∝πk⋅ϕrui; uk,σu,k2Ir⋅ϕrvi; vk,σv,k2Ir
+where ϕrx;μ,Σ denotes the r-variate Gaussian density function.
+Normalize the probabilities across k=1,…,K:
+pi,k=Pci=k∣…l=1KPci=l∣…
+and draw ci∼Categoricalpi,1,…,pi,K.
+3. Sampling Cluster Centroids (uk,vk) and Proportions (π)
+Community Mixing Proportions (π):
+Given the vector of counts nk=i=1nIci=k for k=1,…,K:
+π∣cii=1n∼Dirichletα1+n1, α2+n2, …, αK+nK
+Centroid Means (uk,vk):
+Let Ck=i:ci=k. The conditional posterior for cluster mean uk is Gaussian:
+uk∣uii∈Ck,σu,k2∼NrΩuk-1muk, Ωuk-1
+where:
+Ωuk=1σ02+nkσu,k2Ir, muk=1σu,k2i∈Ckui
+By symmetry:
+vk∣vii∈Ck,σv,k2∼Nr1σ02+nkσv,k2-1i∈Ckviσv,k2, 1σ02+nkσv,k2-1Ir
+Cluster Variances (σu,k2,σv,k2):
+Under prior σu,k2∼IGa0,b0:
+σu,k2∣uii∈Ck,uk∼IGa0+nkr2, b0+12i∈Ck‖ui-uk‖​2
+4. Multiplicative Gamma Process Shrinkage on Latent Network Dimension (r)
+To determine the effective network embedding dimension r and prevent over-fitting:
+Decompose the variance of dimension l∈1,…,r via the Bhattacharya-Dunson multiplicative gamma process prior:
+ξi,l,t∼N0,τu,l-1, τu,l=m=1lδm l=1,…,r
+with δ1∼Gammaa1,1 and δm∼Gammaa2,1 for m≥2 (with a2>1 enforcing stochastically increasing shrinkage).
+As dimension index l grows, the precision τu,l→∞, automatically shrinking extraneous latent embedding coordinates to zero and resolving latent rank selection for the network layer.
+5. Posterior Clustering Summaries and Co-Membership Matrix
+To handle label switching across MCMC draws without post-hoc relabeling:
+Compute the n×n posterior community co-membership matrix P=ρij:
+ρij=1Ss=1SIcis=cjs
+where ρij reflects the posterior probability that entity i and entity j belong to the same systemic block (e.g., global systemically important banks, regional institutions, sovereign credit markets).
+Extract the optimal point partition c=c1,…,cn by minimizing the Variation of Information (VI) distance or maximizing the posterior expected Adjusted Rand Index (ARI) against matrix P.
+Step 22: Dynamic Extreme Value Spillovers, Tail Network Connectedness, and Value-at-Risk (VaR) Co-Exceedance
+Step 22 models dynamic tail dependence and systemic contagion during extreme market events by mapping the posterior draws of the dynamic network VAR model into tail-risk measures, conditional Value-at-Risk (CoVaR), and extreme value network spillover topologies.
+1. Dynamic Tail Risk Metrics and Predictive Value-at-Risk (VaR)
+Let α∈0,1 denote the tail probability quantile (typically α=0.01 or α=0.05 for downside market risk).
+One-Step-Ahead Conditional Quantile: Conditional on information set It-1, the one-step-ahead conditional density of node i is Gaussian with mean yi,t=μt+k=1pIn+Wt-k⊙Bk,t-kyt-k-μt-ki and conditional variance σi,t2=Σii (or Σii,t under the stochastic volatility extension in Step 19):
+VaRi,tα=yi,t+Φ-1α⋅σi,t[cite: 1]
+where Φ-1⋅ is the standard normal quantile function.
+Posterior Distribution of VaR:
+For each retained MCMC iteration s=1,…,S, compute:
+VaRi,tsα=yi,ts+Φ-1αΣiis[cite: 1]
+The posterior median VaRi,tα=1Ss=1SVaRi,tsα provides a point estimate that reflects both parameter uncertainty and time-varying spatial lag feedback.
+2. Dynamic CoVaR and Marginal Systemic Contribution (ΔCoVaRt)
+ΔCoVaRj→i,t quantifies the increase in tail risk of entity i when entity j shifts from its median state to an extreme distress state at time t:
+Conditional Distress State for Node j:
+Set entity j's realization to its conditional Value-at-Risk threshold:
+yj,t=VaRj,tα
+Conditional Mean Shift via Innovation Partitioning: Express the conditional expectation of node i's innovation given that node j's innovation hits its tail boundary εj,t=VaRj,tα-yj,t=Φ-1αΣjj:
+Eεi,t∣εj,t=ΣijΣjjεj,t=ΣijΣjjΦ-1α[cite: 1]
+Varεi,t∣εj,t=Σii-Σij2Σjj[cite: 1]
+CoVaR Formulation:
+The conditional tail quantile of node i when node j is at its α-VaR limit is:
+CoVaRi|j,tα=yi,t+ΣijΣjjΦ-1α+Φ-1αΣii-Σij2Σjj[cite: 1]
+Marginal Dynamic Contribution (ΔCoVaRi|j,t):
+Subtracting node i's tail risk under node j's median benchmark (εj,t=0):
+ΔCoVaRi|j,tα=CoVaRi|j,tα-CoVaRi|j,median,tα=ΣijΣjjΦ-1α[cite: 1]
+3. Extreme Network Topology: Dynamic Co-Exceedance Probability Matrix
+Evaluate the structural dynamic probability that entity i experiences an extreme crisis draw given that entity j is in an extreme tail event:
+Bivariate Normal Exceedance Probability:
+For any directed pair i≠j at period t:
+Pij,ttailα=Pyi,t≤VaRi,tα∣yj,t≤VaRj,tα, It-1
+Using the correlation coefficient ρij=ΣijΣiiΣjj:
+Pij,ttailα=1α-∞Φ-1α-∞Φ-1αϕ2zi,zj; 1ρijρij1dzi dzj
+Dynamic Asymmetric Spillover Multipliers: Incorporate the network lag transmission matrix Φ1,t-1=In+Wt-1⊙B1,t-1 into the multi-period forward tail horizon:
+Λij,t,htail=Ψt,hΣΨt,h'ij⋅Ψt,hΣΨt,h'jj-1/2Φ-1α[cite: 1]
+where Ψt,h is the local Vector Moving Average impulse response matrix computed in Step 12.
+4. Dynamic Systemic Fragility Index (SFI)
+Aggregate tail cross-dependencies into a scalar index that monitors economy-wide financial stress and joint collapse vulnerability:
+Joint Co-Exceedance Index (JCEt):
+Define the indicator of joint systemic default across all nodes:
+Ei,t=Iyi,t≤VaRi,tα
+The expected number of institutions concurrently in crisis at time t is:
+SFIt=Ei=1nEi,t  j=1nEj,t≥1, It-1=i=1nj=1nPEi,t=1,Ej,t=11-Pj=1nEj,t=0
+5. Post-Processing Algorithm
+For each posterior draw s=1,…,S:
+Retrieve covariance draw Σs and dynamic coefficient matrices Bk,t-ks.
+For each time step t=1,…,T:
+Compute VaRi,tsα for all i=1,…,n.
+Compute the pairwise matrix ΔCoVaRi|j,tsαn×n.
+Evaluate the empirical or analytical joint exceedance tail matrix Pij,ttailsα via bivariate Gaussian quadrature.
+Compute posterior expectations and equal-tailed 95% credible intervals for all pairwise tail measures across iterations s=1,…,S.
+Step 23: Dynamic Network Cointegration, Error-Correction Dynamics, and Long-Run Equilibrium Tracking
+Step 23 accounts for non-stationary or unit-root behavior in the raw macroeconomic and financial series yt by embedding a dynamic Vector Error-Correction Model (VECM) into the network VAR specification. This models long-run equilibrium relationships (cointegrating vectors) alongside the time-varying network spillovers and dynamic factor intercepts.
+1. Statistical Model: Dynamic Network Vector Error-Correction Model (VECM)
+When the n-dimensional series yt is integrated of order 1 (yt∼I1), modeling differences directly can discard long-run structural levels. The first-difference dynamic network representation is formulated as:
+Δyt=μt+αtβ'yt-1-μt-1+k=1p-1In+Wt-k⊙Bk,t-k*Δyt-k-μt-k+εt, εt∼Nn0,Σ[cite: 1]
+where:
+Δyt=yt-yt-1 is the n×1 stationary difference vector.
+β∈Rn×rcoint (rcoint<n) contains the time-invariant cointegrating vectors governing long-run steady-state relationships.
+αt∈Rn×rcoint is the dynamic adjustment/loading matrix governing the speed of mean-reversion toward equilibrium at time t.
+Bk,t*=Uk,t*Vk,t*' represents the low-rank short-run network dynamics on differenced lags.
+μt=Fλt+Ftλt captures the underlying dynamic equilibrium trajectory.
+2. Identification and Prior Specifications for Cointegration Spaces
+The product Πtcoint=αtβ' suffers from rotational indeterminacy because αtβ'=αtMM-1β' for any invertible matrix M∈Rrcoint×rcoint:
+Linear Normalization on β:
+Partition β using standard Phillips-triangular normalization:
+β=Ircointβsub, βsub∈Rn-rcoint×rcoint
+Assign Gaussian prior: vecβsub∼Nn-rcointrcoint0,σβ2I.
+Dynamic Adjustment Matrix (αt): Model the rows of αt or vectorization at=vecαt∈Rnrcoint as a Gaussian random walk:
+at=at-1+ξtα, ξtα∼Nnrcoint0,τα2Inrcoint[cite: 1]
+with prior a0∼Nnrcoint0,c0I and hypervariance τα2∼IGa0,b0.
+3. Sampling Dynamic Adjustment Loadings (att=1T) via FFBS
+Condition on β, μt, Bk,t*, Wt, and Σ.
+Observation Equation Setup:
+Define the short-run differenced residual vector:
+ztα=Δyt-μt-k=1p-1In+Wt-k⊙Bk,t-k*Δyt-k-μt-k∈Rn[cite: 1]
+Let zt-1β=β'yt-1-μt-1∈Rrcoint denote the error-correction deviation vector at t-1. Using the Kronecker identity vecαtzt-1β=zt-1β'⊗Invecαt:
+ztα=Htαat+εt, εt∼Nn0,Σ[cite: 1]
+where Htα=zt-1β'⊗In∈Rn×nrcoint.
+Kalman Filtering and Backward Simulation:
+Whitening the observation system using Σ-1/2, execute Forward Filtering Backward Sampling (FFBS) across t=1,…,T to sample the complete smoothed path att=1T under transition variance τα2Inrcoint, identical to the linear state-space schemes in Step 4 and Step 6.
+Unvectorize at into matrix form: αt=matn×rcointat.
+4. Sampling Cointegrating Vector Parameters (βsub)
+Condition on dynamic loadings αtt=1T, time series ytt=1T, and short-run dynamics.
+Let xt-1=yt-1-μt-1∈Rn. Partition according to the triangular normalization:
+xt-1=x1,t-1x2,t-1, x1,t-1∈Rrcoint, x2,t-1∈Rn-rcoint
+Then the error-correction term decomposes into:
+αtβ'xt-1=αtx1,t-1+βsub'x2,t-1=αtx1,t-1+αtβsub'x2,t-1
+Shift known components to the left-hand side:
+ztβ≡ztα-αtx1,t-1=αtβsub'x2,t-1+εt[cite: 1]
+Vectorize using vecαtβsub'x2,t-1=x2,t-1'⊗αtvecβsub':
+ztβ=Xtβb+εt, Xtβ=x2,t-1'⊗αt∈Rn×n-rcointrcoint
+where b=vecβsub'.
+Posterior Gaussian Draw:
+b∣…∼NΩb-1mb, Ωb-1
+Ωb=1σβ2I+t=1TXtβ'Σ-1Xtβ, mb=t=1TXtβ'Σ-1ztβ[cite: 1]
+Factorize Ωb via Cholesky decomposition, solve for conditional mean, draw perturbation, and reshape b into βsub.
+5. Sampling Innovation Variance (τα2) and Long-Run Persistence Metrics
+Adjustment Random Walk Variance Update:
+τα2∣att=0T∼IGa0+Tnrcoint2, b0+12t=1T‖at-at-1‖​2[cite: 1]
+Time-Varying Equilibrium Half-Life:
+For each cointegrating relation m∈1,…,rcoint, compute the dynamic speed of adjustment αm,t=1ni=1n|αim,t|.
+Evaluate the time-t half-life of mean-reversion toward long-run network equilibrium:
+T1/2,m,t=log0.5log1-αm,t
+Quantifying how monetary shocks, trade disruptions, or network contagion alter the speed at which markets restore systemic equilibrium over time.
+Step 24: Structural Break Detection, Regime-Switching Dynamics, and Dynamic Model Averaging (DMA)
+Step 24 incorporates discrete regime changes, structural break detection, and dynamic model averaging over the random walk variances and low-rank dimensions (r0,rμ,r,rB), preventing over-smoothing during sudden market crises, liquidity freezes, or regulatory overhauls.
+1. Hidden Markov Regime-Switching Formulation
+Rather than assuming continuous Gaussian random walk innovations with fixed variances throughout the entire sample, the innovation variance scales and network density are modulated by a discrete Markov regime indicator st∈1,…,KR for t=1,…,T:
+Transition Probability Matrix (P):
+pij=Pst=j∣st-1=i, P=pijKR×KR
+where each row has an independent Dirichlet prior:
+pi,∙=pi1,…,piKR∼Dirichletγi1,…,γiKR
+(To enforce persistent regimes, specify γii≫γij for i≠j.)
+Regime-Dependent Variance Scaling:
+Each dynamic innovation variance is scaled by a regime-specific multiplier σR2st:
+Varηtθ∣st=σR2stQθ, Varξk,tU∣st=σR2stτU2InrB, Varεt∣st=σR2stΣ[cite: 1]
+with normalization σR21=1 and priors σR2k∼IGaR,bR for k=2,…,KR.
+2. Sampling Discrete Regimes (stt=1T) via Hamilton-Chib Filter
+Condition on all continuous factor paths, network variables, VAR coefficients, and variance components:
+Forward Hamilton Filter (t=1,…,T):
+Compute the conditional observation likelihood in regime k∈1,…,KR:
+fyt∣st=k,It-1,Θ=2π-n2|σR2kΣ|​-12exp-12σR2kεt'Σ-1εt[cite: 1]
+where εt=yt-μt-l=1pIn+Wt-l⊙Bl,t-lyt-l-μt-l.
+Prediction step:
+Pst=k∣It-1=j=1KRpjk⋅Pst-1=j∣It-1
+Update step:
+Pst=k∣It=Pst=k∣It-1fyt∣st=k,It-1,Θl=1KRPst=l∣It-1fyt∣st=l,It-1,Θ
+Store filtered probabilities πt|t,k≡Pst=k∣It for all t and k.
+Backward Sampling of Regime Trajectory (t=T,T-1,…,1):
+At terminal time T, draw sT∼CategoricalπT|T,1,…,πT|T,KR.
+For t=T-1,T-2,…,1, compute transition probabilities conditional on the future regime st+1:
+Pst=k∣st+1,It=πt|t,k⋅pk,st+1l=1KRπt|t,l⋅pl,st+1
+Draw st∼CategoricalPst=1∣st+1,It,…,Pst=KR∣st+1,It.
+3. Sampling Transition Probabilities (P) and Regime Variances (σR2k)
+Transition Matrix Draws:
+Count the number of transitions from regime i to regime j: Nij=t=2TIst-1=i,st=j.
+For each row i∈1,…,KR:
+pi,∙∣stt=1T∼Dirichletγi1+Ni1, …, γiKR+NiKR
+Regime Multipliers (σR2k):
+Let Tk=t:st=k and Tk=|Tk|. For k=2,…,KR:
+σR2k∣…∼IGaR+nTk2, bR+12t∈Tkεt'Σ-1εt[cite: 1]
+4. Endogenous Structural Break Detection (Change-Point Analysis)
+To detect permanent structural breaks (e.g., changes in the underlying factor rank, baseline connectivity, or steady-state network topology Wt) rather than recurrent regime switches:
+Enforce a non-reversible forward transition structure on the Markov transition matrix:
+Pbreak=p111-p110…00p221-p22…0⋮⋮⋱⋱⋮00…pKR-1,KR-11-pKR-1,KR-100…01
+Break dates τ1,τ2,…,τKR-1 are identified as the exact timestamps of regime transitions:
+τm=mint:st=m+1
+Compute posterior break probability distributions across time:
+PBreak at t=1Ss=1SIsts≠st-1s
+5. Dynamic Model Averaging (DMA) for Real-Time Rank Selection
+Because the true ranks (r0,rμ,r,rB) can shift over time (e.g., factor compression during crisis events), DMA runs parallel recursive filters across a grid of candidate models Mm=r0m,rμm,rm,rBm for m=1,…,Mgrid:
+Model Weight Updating via Forgetting Factor (αdma∈0.95,0.99):
+Predict model weight:
+πt|t-1m=πt-1|t-1mαdmal=1Mgridπt-1|t-1lαdma
+Update model weight using the one-step-ahead predictive density pmyt∣It-1 from Step 13:
+πt|tm=πt|t-1m⋅pmyt∣It-1l=1Mgridπt|t-1l⋅plyt∣It-1
+DMA Model-Averaged Point and Density Estimates:
+Combine parameter trajectories and predictive distributions across competing dimensional ranks according to their time-varying posterior model probabilities:
+yt+1|tDMA=m=1Mgridπt|tmyt+1|tm, WtDMA=m=1Mgridπt|tmWtm[cite: 1]
+Step 25: Variational Bayes Approximation and Scalable Mean-Field Stochastic Optimization
+Step 25 introduces a scalable Variational Bayes (VB) alternative to the exact MCMC Gibbs sampler. For massive networks (n≥500) or long panels (T≥2,000), MCMC sampling via full Forward Filtering Backward Simulation (FFBS) incurs high computational costs per draw. This step derives a structured Mean-Field Variational Family qΘ, specifies coordinate ascent updates (CAVI), and outlines a Stochastic Variational Inference (SVI) pipeline via mini-batch subsampling.
+1. Mean-Field Factorized Variational Family qΘ
+Let Θ=Z,U0,V0,Ut,Vtt=1T,λt,λt,Ftt=1T,F,Uk,t,Vk,tt=1,k=1T,p,Σ,Vhyper denote the full parameter and latent state collection, where Vhyper=τλ2,τλ2,τF2,τU2,τV2,τu2,τv2.
+The exact posterior pΘ∣Y,A is approximated by a structured factorized distribution:
+qΘ=qZqU0,V0qUt,Vtqθ1:TqFqFtk=1pqUk,t,Vk,tqΣqVhyper
+Latent Continuous Network Dyads (Z=zi,j,t):
+qZ=t=1Ti≠jqzi,j,t, qzi,j,t∼TNai,j,tμz,i,j,t, 1
+truncated to 0,∞ if ai,j,t=1 and (-∞,0] if ai,j,t=0.
+Static Embeddings & Static Intercept Loadings (U0,V0,F):
+qui=Nrmui,Vui, qvj=Nrmvj,Vvj, qvecF=Nnr0mF,VF
+Dynamic Trajectories (Structured Gaussian Markov Blocks):
+To preserve temporal autocorrelation, retain joint Gaussian chain structures over time:
+qui,tt=1T=NrTmui,1:T, Vui,1:T, qθtt=1T=Nr0+rμTmθ,1:T, Vθ,1:T
+where θt=λt',λt'' and covariance matrices V possess block-tridiagonal precision structures.
+Covariance and Scale Hyperparameters:
+qΣ=IWνq, Sq, qτ2=IGaqτ, bqτ
+2. Coordinate Ascent Variational Updates (CAVI)
+Under Kullback-Leibler divergence minimization KLqΘ∥pΘ∣Y,A, the optimal distribution for any parameter block Θj satisfies:
+logq*Θj=Eq-ΘjlogpY,A,Θ+const
+Optimal Update for Dyadic Intensities (zi,j,t):
+μz,i,j,t=Equi'Eqvj+Equi,t'Eqvj,t
+The variational expectation under the truncated Gaussian is computed analytically:
+Eqzi,j,t=μz,i,j,t+ϕμz,i,j,tΦμz,i,j,t if ai,j,t=1, Eqzi,j,t=μz,i,j,t-ϕμz,i,j,t1-Φμz,i,j,t if ai,j,t=0
+Optimal Update for Static Factor Matrix (F):
+Let yt*=yt-EqFtλt-k=1pIn+EqWt-k⊙Bk,t-kyt-k-Eqμt-k.
+VF-1=1σF2Inr0+t=1TEqλtλt'⊗EqΣ-1
+mF=VFt=1TEqλt⊗EqΣ-1yt*
+where EqΣ-1=νqSq-1.
+Optimal Dynamic Paths via Variational Smoothing Filter:
+For block θ1:T=θtt=1T, the quadratic expectation preserves the linear state-space structure. The variational mean mθ,1:T and banded covariance Vθ,1:T are computed in a single pass of a deterministic Kalman filter and Rauch-Tung-Striebel (RTS) smoother, using the expected observation matrices:
+Gt=EqF, EqFt, Σ=EqΣ-1-1=1νqSq
+Qθ=diagEqτλ2-1-1Ir0, Eqτλ2-1-1Irμ
+This replaces the backward simulation draws in Gibbs sampling with deterministic RTS smoothed mean and covariance updates.
+Optimal Covariance Update (qΣ):
+νq=ν0+T
+Sq=S0+t=1TEqεtεt'
+where Eqεtεt'=yt-Eqμt-k=1pEqΦk,t-kyt-kyt-Eqμt-k=1pEqΦk,t-kyt-k'+Covqresiduals.
+3. Evidence Lower Bound (ELBO) Tracking
+Convergence of the variational updates is monitored at iteration l using the Evidence Lower Bound:
+ELBOl=EqllogpY,A,Θ-EqllogqlΘ
+Decompose into likelihood fit, prior divergence, and entropy:
+ELBOl=-Tn2log2π+T2Eqlog|Σ-1|-12t=1TtrEqΣ-1Eqεtεt'
++t=1Ti≠jai,j,tlogΦμz,i,j,t+1-ai,j,tlog1-Φμz,i,j,t)-jKLqΘj ‖ pΘj
+Terminate the CAVI iterations when the relative change satisfies:
+|ELBOl-ELBOl-1||ELBOl-1|<10-6
+4. Stochastic Variational Inference (SVI) for Large Networks
+When T and n are too large for full-sample CAVI batch evaluations:
+Subsample Mini-Batches: At step ι, sample a random sub-interval of time ST⊂p+1,…,T of size |ST|=BT≪T and a subset of nodes Sn⊂1,…,n of size Bn≪n.
+Compute Intermediate Variational Parameters: Evaluate intermediate parameters Sqι and mFι scaled up by data expansion factor TBT.
+Natural Gradient Step: Update global variational parameters using Robbins-Monro decaying learning rates ρι=ι+τsvi-κsvi (where κsvi∈(0.5,1]):
+Sqι=1-ριSqι-1+ριSqι
+mFι=1-ριmFι-1+ριmFι
+5. Post-Processing and Downstream Usage
+The resulting variational factor distributions provide analytical representations of the posterior:
+Point Estimates: Take the converged variational means Eqμt, EqBk,t, EqWt, and EqΣ directly as point estimates.
+Standard Errors & Credible Intervals: Extract marginal variances directly from the diagonals of variational covariance blocks (e.g., diagVF, diagVθ,t), bypassing the need to store large MCMC trace histories.
+Fast Monte Carlo Forward Drawing: When generating GIRFs (Step 12), out-of-sample forecasts (Step 11), or tail dependencies (Step 22), draw parameter matrices independently from the factorized distributions q*Θj without Markov chain autocorrelation.

@@ -1,0 +1,26 @@
+{
+  "paper": "Koop, Korobilis, Pettenuzzo, Journal of Econometrics 210 (2019) 135-154",
+  "p": 2,
+  "R": 50,
+  "projection": "Achlioptas / Guhaniyogi-Dunson, phi ~ U[0.1,0.8], m ~ U{1,...,5 ln k_i}",
+  "bma": "BIC weights, equation-by-equation triangular VAR",
+  "own_lag_uncompressed": true,
+  "specs": {
+    "BCVAR": {
+      "file": "djia_6m_bcvar_mean.csv",
+      "avg_mape": 9.671757298115917,
+      "avg_mae": 25.987309884814508,
+      "bma_ess": 1.0,
+      "granger_density": 1.0,
+      "n_compressions": 50
+    },
+    "BCVAR-TVP": {
+      "file": "djia_6m_bcvar_tvp_mean.csv",
+      "avg_mape": 9.544467434193075,
+      "avg_mae": 24.632297671077367,
+      "bma_ess": 1.0,
+      "granger_density": 0.9781609195402299,
+      "n_compressions": 50
+    }
+  }
+}
